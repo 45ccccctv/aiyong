@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>爱用小组件 - 小组件模板配置中台原型</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="demo-frame">
+    <header class="demo-header" data-annotation-id="prototype-switch">
+      <div class="demo-brand">
+        <span>爱</span>
+        <div>
+          <strong>爱用小组件</strong>
+          <small>DEVELOPMENT REVIEW</small>
+        </div>
+      </div>
+      <div class="demo-tabs" role="tablist" aria-label="原型切换">
+        <button class="active" data-demo-view="app" type="button">移动端 Demo</button>
+        <button data-demo-view="admin" type="button">内容运营中台</button>
+      </div>
+      <button class="demo-open" data-demo-action="open-window" type="button">新窗口打开 ↗</button>
+    </header>
+
+    <section class="demo-view active" data-demo-panel="app">
+      <div class="app-stage" data-annotation-id="app-demo-view">
+        <div class="soft-shape shape-one"></div>
+        <div class="soft-shape shape-two"></div>
+        <strong class="watermark">爱用</strong>
+        <div class="phone-shell">
+          <div class="phone-status"><span>9:41</span><span>49%</span></div>
+          <main class="app-phone">
+            <section class="app-page active" data-app-page="home">
+              <header class="app-top">
+                <h2>爱用小组件</h2>
+                <div>
+                  <button data-app-action="tutorial" type="button">教程</button>
+                  <button data-app-action="my-widgets" type="button">我的组件</button>
+                </div>
+              </header>
+              <nav class="app-cats">
+                <button class="active">照片墙</button>
+                <button>电量</button>
+                <button>天气</button>
+                <button>日历</button>
+              </nav>
+              <section class="app-grid">
+                <article data-app-action="detail">
+                  <div class="mini-widget photo"></div>
+                  <b>夏日贴纸组件</b>
+                </article>
+                <article data-app-action="detail">
+                  <div class="mini-widget battery"></div>
+                  <b>摇摆爱心电量</b>
+                </article>
+                <article data-app-action="detail">
+                  <div class="mini-widget calendar"></div>
+                  <b>纪念日样式</b>
+                </article>
+                <article data-app-action="detail">
+                  <div class="mini-widget weather"></div>
+                  <b>天气组件</b>
+                </article>
+              </section>
+            </section>
+
+            <section class="app-page" data-app-page="detail">
+              <header class="app-detail-head">
+                <button data-app-action="home" type="button">‹</button>
+                <h2>夏日贴纸组件</h2>
+              </header>
+              <div class="detail-preview">
+                <div class="mini-widget photo large"></div>
+                <p>*如在桌面无动效请点击一下组件</p>
+              </div>
+              <section class="edit-card">
+                <div class="edit-row"><b>替换图片</b><button data-app-action="slot-select" type="button">替换 ›</button></div>
+                <div class="edit-row"><b>替换文案</b><input value="Better days are coming" /></div>
+              </section>
+              <button class="app-primary" data-app-action="save-widget" type="button">保存到我的组件</button>
+            </section>
+
+            <section class="app-page" data-app-page="slot-select">
+              <header class="app-detail-head">
+                <button data-app-action="detail" type="button">‹</button>
+                <h2>图片编辑</h2>
+              </header>
+              <div class="slot-edit-preview">
+                <div class="wide-widget-blue">
+                  <button class="slot-plus" data-app-action="album" type="button">+</button>
+                </div>
+                <p>点击图片进行编辑</p>
+              </div>
+              <button class="app-primary dark" data-app-action="detail" type="button">完成</button>
+            </section>
+
+            <section class="app-page" data-app-page="album">
+              <header class="app-detail-head app-action-head">
+                <button data-app-action="slot-select" type="button">‹</button>
+                <h2>导入图片</h2>
+                <button data-app-action="image-edit" type="button">完成</button>
+              </header>
+              <div class="album-canvas" data-app-action="image-edit">
+                <div class="album-photo"></div>
+              </div>
+              <nav class="album-tools">
+                <button type="button">滤镜</button>
+                <button type="button">镜像</button>
+                <button type="button">抠文字</button>
+                <button type="button">抠人像</button>
+              </nav>
+            </section>
+
+            <section class="app-page" data-app-page="image-edit">
+              <header class="app-detail-head">
+                <button data-app-action="album" type="button">‹</button>
+                <h2>图片编辑</h2>
+              </header>
+              <div class="image-adjust-stage">
+                <div class="wide-widget-blue adjusted">
+                  <div class="imported-photo"></div>
+                </div>
+                <div class="transform-box">
+                  <span>×</span>
+                  <i>↻</i>
+                  <b>⌞</b>
+                </div>
+                <p>双指可放大缩小，旋转调整导入图片</p>
+              </div>
+              <button class="app-primary dark" data-app-action="detail" type="button">完成</button>
+            </section>
+
+            <section class="app-page" data-app-page="mine">
+              <header class="app-detail-head">
+                <button data-app-action="home" type="button">‹</button>
+                <h2>我的组件</h2>
+              </header>
+              <nav class="size-tabs"><button>超小号</button><button>小号</button><button class="active">中号</button><button>大号</button></nav>
+              <div class="my-list">
+                <article>
+                  <div class="list-cover"></div>
+                  <strong>夏日贴纸组件</strong>
+                  <button data-app-action="install" type="button">安装</button>
+                  <button class="trash" type="button">⌫</button>
+                </article>
+                <article>
+                  <div class="list-cover battery-cover"></div>
+                  <strong>摇摆爱心电量</strong>
+                  <button data-app-action="install" type="button">安装</button>
+                  <button class="trash" type="button">⌫</button>
+                </article>
+              </div>
+            </section>
+
+            <section class="app-page" data-app-page="tutorial">
+              <header class="app-detail-head">
+                <button data-app-action="home" type="button">‹</button>
+                <h2>添加教程</h2>
+              </header>
+              <div class="video-card">
+                <span>▶</span>
+                <b>如何添加小组件到桌面</b>
+              </div>
+              <p class="guide-text">长按桌面空白处，选择小组件，找到爱用小组件并添加到桌面。</p>
+            </section>
+          </main>
+          <nav class="app-tabbar">
+            <button class="active" data-app-action="home" type="button">首页</button>
+            <button data-app-action="my-widgets" type="button">小组件</button>
+            <button type="button">我的</button>
+          </nav>
+        </div>
+        <div class="env-badge"><span></span>移动端 · Production</div>
+      </div>
+    </section>
+
+    <section class="demo-view" data-demo-panel="admin">
+  <div class="shell">
+    <aside class="sidebar" data-annotation-id="nav-menu">
+      <div class="brand">
+        <span>爱</span>
+        <div>
+          <strong>爱用小组件</strong>
+          <small>运营中台</small>
+        </div>
+      </div>
+      <nav>
+        <button>内容管理</button>
+        <button>栏目管理</button>
+        <button class="active">小组件模板配置</button>
+        <button>素材库</button>
+        <button>数据看板</button>
+      </nav>
+      <div class="side-note">
+        <b>栏目关联不在本菜单</b>
+        <p>模板保存上线后，到现有栏目菜单关联和排序。</p>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <p>小组件中台 / 模板配置</p>
+          <h1>小组件模板配置</h1>
+        </div>
+        <div class="top-actions">
+          <button class="ghost" data-action="open-rules">规则说明</button>
+          <button class="primary" data-action="new-template">新建模板</button>
+        </div>
+      </header>
+
+      <section class="screen active" data-screen="list">
+        <section class="summary-grid" data-annotation-id="scope-summary">
+          <article>
+            <span>一期组件类型</span>
+            <strong>2 类</strong>
+            <p>照片墙组件、电量</p>
+          </article>
+          <article>
+            <span>保存策略</span>
+            <strong>默认上线</strong>
+            <p>无草稿按钮，无上下线入口</p>
+          </article>
+          <article>
+            <span>用户可编辑</span>
+            <strong>默认图片</strong>
+            <p>装饰层、位置、动效、层级不可改</p>
+          </article>
+          <article>
+            <span>栏目展示</span>
+            <strong>复用现有栏目</strong>
+            <p>本菜单不处理栏目排序</p>
+          </article>
+        </section>
+
+        <section class="panel" data-annotation-id="template-list">
+          <div class="panel-head">
+            <div>
+              <h2>运营组件模板列表</h2>
+              <p>运营创建后即可被栏目菜单关联，小组件名称会在客户端展示。</p>
+            </div>
+          </div>
+
+          <div class="search-bar" data-annotation-id="list-search">
+            <label>
+              <span>小组件名称</span>
+              <input id="templateNameSearch" placeholder="请输入小组件名称" />
+            </label>
+            <label>
+              <span>组件类型</span>
+              <select id="templateTypeSearch">
+                <option value="all">全部组件类型</option>
+                <option value="single_image">照片墙组件</option>
+                <option value="battery">电量</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="table">
+            <div class="table-row head">
+              <span>小组件名称</span>
+              <span>组件类型</span>
+              <span>有效状态</span>
+              <span>可用人群</span>
+              <span>组件尺寸</span>
+              <span>更新人</span>
+              <span>更新时间</span>
+              <span>预览</span>
+              <span>操作</span>
+            </div>
+            <div class="table-row template-row" data-category="battery" data-bound="true">
+              <span><b>粉色猫咪摇摆爱心电量</b><small>WT-10001</small></span>
+              <span>电量</span>
+              <span><em class="status online">有效</em></span>
+              <span>会员用户</span>
+              <span>2*2</span>
+              <span>林夏</span>
+              <span>2026-08-20 14:32</span>
+              <span><button class="text-link compact" data-action="open-preview">查看</button></span>
+              <span class="row-actions"><button data-action="edit-template">编辑</button><button data-action="delete-template">删除</button></span>
+            </div>
+            <div class="table-row template-row" data-category="single_image">
+              <span><b>夏日贴纸单图组件</b><small>WT-10002</small></span>
+              <span>照片墙组件</span>
+              <span><em class="status online">有效</em></span>
+              <span>所有用户</span>
+              <span>2*4</span>
+              <span>周宁</span>
+              <span>2026-08-20 11:08</span>
+              <span><button class="text-link compact" data-action="open-preview">查看</button></span>
+              <span class="row-actions"><button data-action="edit-template">编辑</button><button data-action="delete-template">删除</button></span>
+            </div>
+            <div class="table-row template-row" data-category="battery">
+              <span><b>圆环电量少女组件</b><small>WT-10003</small></span>
+              <span>电量</span>
+              <span><em class="status online">有效</em></span>
+              <span>会员用户</span>
+              <span>4*4</span>
+              <span>陈可</span>
+              <span>2026-08-19 18:45</span>
+              <span><button class="text-link compact" data-action="open-preview">查看</button></span>
+              <span class="row-actions"><button data-action="edit-template">编辑</button><button data-action="delete-template">删除</button></span>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="screen" data-screen="editor">
+        <div class="editor-layout editor-layout-single">
+          <section class="panel form-panel" data-annotation-id="create-flow">
+            <div class="panel-head">
+              <div>
+                <h2>新建运营小组件</h2>
+                <p>选择组件类型和组件模板后，系统展示可配置图层。</p>
+              </div>
+              <button class="text-link" data-action="back-list">返回列表</button>
+            </div>
+
+            <section class="config-section base-info-section" data-annotation-id="base-info">
+              <div class="section-title">
+                <h3>模板基础信息</h3>
+                <p>用于定义客户端可见名称、封面和组件模板。</p>
+              </div>
+            <div class="form-grid">
+              <label>
+                <span>小组件名称 <em class="required-mark">*</em></span>
+                <input id="templateName" value="夏日贴纸单图组件" />
+                <small>该名称会在客户端展示，用户可看到。</small>
+              </label>
+              <label data-annotation-id="audience-select">
+                <span>可见人群 <em class="required-mark">*</em></span>
+                <select id="audienceSelect">
+                  <option>会员用户</option>
+                  <option>所有用户</option>
+                </select>
+                <small>控制该小组件在客户端可见的人群范围。</small>
+              </label>
+              <label data-annotation-id="size-select">
+                <span>组件尺寸 <em class="required-mark">*</em></span>
+                <select id="sizeSelect">
+                  <option>2*2</option>
+                  <option>2*4</option>
+                  <option>4*4</option>
+                </select>
+                <small>用于匹配 Android 桌面小组件规格。</small>
+              </label>
+              <label>
+                <span>上传封面图 <em class="required-mark">*</em></span>
+                <button class="upload" data-action="mock-upload">上传客户端展示封面</button>
+                <small>该图片作为客户端列表、栏目或详情入口封面。</small>
+              </label>
+              <label data-annotation-id="category-select">
+                <span>组件类型 <em class="required-mark">*</em></span>
+                <select id="categorySelect">
+                  <option value="single_image">照片墙组件</option>
+                  <option value="battery">电量</option>
+                </select>
+              </label>
+              <label data-annotation-id="base-template-select">
+                <span>组件模板 <em class="required-mark">*</em></span>
+                <select id="baseTemplateSelect"></select>
+              </label>
+            </div>
+            </section>
+
+            <section class="config-section" data-annotation-id="layer-config">
+              <div class="section-title">
+                <h3>图层配置</h3>
+                <p>图层来自组件模板，运营按图层上传素材并选择位置。</p>
+              </div>
+              <div id="layerList" class="layer-list"></div>
+            </section>
+
+            <section class="config-section" data-annotation-id="user-edit-policy">
+              <div class="section-title">
+                <h3>用户编辑权限</h3>
+                <p>一期按图层声明权限，客户端只开放允许编辑的素材。</p>
+              </div>
+              <div class="permission-box">
+                <span>用户可改</span>
+                <b>背景图层</b>
+                <b>槽位图片</b>
+                <b>文字内容</b>
+                <i>不可改模板装饰层、位置、动效、层级、动态字段绑定</i>
+              </div>
+            </section>
+
+            <footer class="form-footer" data-annotation-id="save-default-online">
+              <p>除图片槽位、文字图层外，其余字段均为必填；点击保存后，publish_status 默认写入 online。</p>
+              <button class="primary large" data-action="save-template">保存</button>
+            </footer>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+    </section>
+  </div>
+
+  <div class="modal" id="desktopModal" aria-hidden="true">
+    <div class="modal-card app-modal-card">
+      <button class="close" data-app-action="close-desktop">×</button>
+      <h2>添加到主屏幕</h2>
+      <div class="desktop-card">
+        <div class="app-icon">爱</div>
+        <p>点我选择 2*2 组件</p>
+      </div>
+      <strong>爱用小组件</strong>
+      <small>2 × 2</small>
+      <div class="modal-actions">
+        <button data-app-action="close-desktop" type="button">取消</button>
+        <button data-app-action="confirm-desktop" type="button">添加</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="rulesModal" aria-hidden="true">
+    <div class="modal-card" data-annotation-id="rules-modal">
+      <button class="close" data-action="close-rules">×</button>
+      <h2>一期规则</h2>
+      <ul>
+        <li>新菜单只负责运营组件模板配置。</li>
+        <li>栏目关联和排序继续使用现有栏目菜单。</li>
+        <li>保存即上线，后台本期只展示保存主按钮。</li>
+        <li>图片槽位和文字图层为非必填，其余配置字段均为必填。</li>
+        <li>小组件名称会展示给客户端用户。</li>
+        <li>照片墙组件的组件模板默认使用基础模板，且不可修改。</li>
+        <li>用户只能改背景图层和图片槽位等被声明为可编辑的素材。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modal" id="previewModal" aria-hidden="true">
+    <div class="modal-card preview-modal-card" data-annotation-id="preview-modal">
+      <button class="close" data-action="close-preview">×</button>
+      <h2>配置结果图预览</h2>
+      <div class="preview-result">
+        <div class="widget-card-preview single">
+          <div class="preview-frame"></div>
+          <div class="preview-photo"></div>
+          <div class="battery-line"></div>
+          <strong>图片</strong>
+        </div>
+        <p>根据当前小组件字段、图层素材、图片槽位形状、尺寸和位置生成。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">已保存，模板默认上线</div>
+
+  <script src="./axhub-annotation.global.js"></script>
+  <script src="./app.js"></script>
+  <script src="./annotations.js"></script>
+</body>
+</html>
