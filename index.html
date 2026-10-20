@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>爱用小组件 - 小组件模板配置中台原型</title>
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./fengshui.css" />
+  <link rel="stylesheet" href="./current-app.css" />
+  <link rel="stylesheet" href="./fengshui-board.css" />
 </head>
 <body>
   <div class="demo-frame">
@@ -165,10 +168,12 @@
               <p class="guide-text">长按桌面空白处，选择小组件，找到爱用小组件并添加到桌面。</p>
             </section>
           </main>
-          <nav class="app-tabbar">
-            <button class="active" data-app-action="home" type="button">首页</button>
-            <button data-app-action="my-widgets" type="button">小组件</button>
-            <button type="button">我的</button>
+          <nav class="app-tabbar" aria-label="底部导航" data-annotation-id="fs-entry">
+            <button class="active" data-current-tab="home" type="button"><i data-lucide="layout-grid"></i><span>小组件</span></button>
+            <button data-current-tab="wallpapers" type="button"><i data-lucide="image"></i><span>精选壁纸</span></button>
+            <button class="fengshui-tab" data-fs="themes" data-current-tab="fengshui" type="button" aria-label="能量主题"><span class="fengshui-orb"><i data-lucide="mountain-snow"></i></span><span>能量</span></button>
+            <button data-current-tab="app-themes" type="button"><i data-lucide="shirt"></i><span>主题</span></button>
+            <button data-current-tab="profile" type="button"><i data-lucide="circle-user-round"></i><span>我的</span></button>
           </nav>
         </div>
         <div class="env-badge"><span></span>移动端 · Production</div>
@@ -451,6 +456,11 @@
 
   <script src="./axhub-annotation.global.js"></script>
   <script src="./app.js"></script>
+  <script src="./fengshui.js"></script>
+  <script src="./assets/lucide.min.js"></script>
+  <script src="./current-app.js"></script>
+  <script src="./fengshui-board.js"></script>
+  <script src="./energy-columns.js"></script>
   <script src="./annotations.js"></script>
 </body>
 </html>
