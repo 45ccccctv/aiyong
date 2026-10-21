@@ -29,13 +29,14 @@
   const selectedTheme=()=>themes.find(t=>t.id===state.theme);
   const availableStyles=kind=>{
     const list=materials[kind].styles,ids=window.__energyColumns?.resourceIds(kind);
+    if(window.__desktopComponents)return window.__desktopComponents.styles(kind,ids).concat(list.filter(s=>s[0].startsWith('custom-')));
     return ids?ids.map(id=>list.find(s=>s[0]===id)).filter(Boolean).concat(list.filter(s=>s[0].startsWith('custom-'))):list;
   };
   const defaultStyle=kind=>availableStyles(kind)[0]||materials[kind].styles[0];
   const styleFor=(theme,index)=>{const kind=theme.slots[index][0],list=availableStyles(kind);return list.find(s=>s[0]===(state.summaryStyles[kind]||state.choices[theme.id+':'+index]))||defaultStyle(kind);};
   const image=style=>style[3]||`./assets/${style[2]}.png`;
-  const asWidget=(style,kind)=>({id:'board-'+kind+'-'+style[0],name:materials[kind].name+' · '+style[1],size:'2*2',type:'照片墙组件',image:image(style),words:''});
-  window.__themeWidgetFlow.register(Object.entries(materials).flatMap(([kind,m])=>m.styles.map(s=>asWidget(s,kind))));
+  const asWidget=(style,kind)=>{const componentId=style[5]||availableStyles(kind).find(s=>s[5])?.[5]||kind;return {id:'board-'+componentId,name:window.__desktopComponents?.get(componentId)?.name||materials[kind].name,size:'2*2',type:'照片墙组件',image:image(style),words:''};};
+  window.__themeWidgetFlow.register(Object.entries(materials).map(([kind,m])=>asWidget(m.styles[0],kind)));
   window.__energyMaterials={categories:()=>Object.entries(materials).map(([id,m])=>({id,name:m.name})),resources:kind=>materials[kind].styles.filter(s=>!s[0].startsWith('custom-')).map((s,i)=>({id:s[0],name:s[1],image:image(s),vip:i>0}))};
   const visibleKind=kind=>!window.__energyColumns||window.__energyColumns.visible(kind);
   const phone=document.querySelector('.app-phone');
@@ -60,7 +61,7 @@
   let member=false;
   try{member=localStorage.getItem(membershipKey)==='true';}catch(_){}
   let requestedStyle=null;
-  const isPaidStyle=(kind,id)=>!id.startsWith('custom-')&&materials[kind].styles.findIndex(s=>s[0]===id)>0;
+  const isPaidStyle=(kind,id)=>!id.startsWith('custom-')&&(window.__desktopComponents?Boolean(availableStyles(kind).find(s=>s[0]===id)?.[4]):materials[kind].styles.findIndex(s=>s[0]===id)>0);
   function membership(){
     renderPage('fs-membership',`<header class="fs-picker-head"><div><h2>开通会员</h2></div><button type="button" data-board="membership-back" aria-label="返回素材选择"><i data-lucide="x"></i></button></header><section class="fs-membership"><i data-lucide="crown"></i><h3>解锁 VIP 专属素材</h3><p>开通会员，随心搭配喜欢的能量组件。</p><ul><li><i data-lucide="lock-keyhole-open"></i>解锁 VIP 素材</li><li><i data-lucide="palette"></i>多种样式自由搭配</li></ul><button type="button" class="fs-material-confirm" data-board="membership-activate">模拟开通会员</button><small>原型演示，不产生实际扣费</small></section>`);
   }
@@ -86,9 +87,10 @@
     const current=index===null?summaryStyle(kind)[0]:styleFor(t,index)[0];
     pending={kind,index,style:current};
     const m={...materials[kind],styles:availableStyles(kind)};
-    renderPage('fs-materials',`<header class="fs-picker-head"><div><h2>${m.name}</h2><p>${m.meaning}</p></div><button type="button" data-board="close-picker" title="关闭" aria-label="关闭样式选择"><i data-lucide="x"></i></button></header><div class="fs-materials-grid" data-annotation-id="fs-materials">${m.styles.map(s=>`<button type="button" class="fs-material-option ${current===s[0]?'selected':''}" data-board="choose" data-style="${s[0]}" aria-pressed="${current===s[0]}"><img src="${image(s)}" alt="${m.name} · ${s[1]}"/>${isPaidStyle(kind,s[0])?'<span class="fs-material-vip" title="VIP 专属素材" aria-label="VIP 专属素材"><i data-lucide="lock-keyhole"></i></span>':''}<span>${s[1]}</span><i class="fs-material-check" data-lucide="check"></i></button>`).join('')}<button type="button" class="fs-material-option fs-custom-material" data-board="custom-image"><div><i data-lucide="image-plus"></i></div><span>自定义图片</span></button></div><input type="file" id="fsCustomImage" accept="image/png,image/jpeg,image/webp" hidden /><button class="fs-material-confirm" type="button" data-board="apply" ${index===null||!current?'disabled':''}>确定</button>`);
+    renderPage('fs-materials',`<header class="fs-picker-head"><div><h2>${m.name}</h2><p>${m.meaning}</p></div><button type="button" data-board="close-picker" title="关闭" aria-label="关闭样式选择"><i data-lucide="x"></i></button></header><div class="fs-materials-grid" data-annotation-id="fs-materials">${m.styles.map(s=>`<button type="button" class="fs-material-option ${current===s[0]?'selected':''}" data-board="choose" data-style="${s[0]}" aria-pressed="${current===s[0]}"><img src="${image(s)}" alt="${m.name} · ${s[1]}"/>${isPaidStyle(kind,s[0])?'<span class="fs-material-vip" title="VIP 专属素材" aria-label="VIP 专属素材"><i data-lucide="lock-keyhole"></i></span>':''}<span>${s[1]}</span><i class="fs-material-check" data-lucide="check"></i></button>`).join('')}<button type="button" class="fs-material-option fs-custom-material" data-board="custom-image"><div><i data-lucide="image-plus"></i></div><span>自定义图片</span></button></div><input type="file" id="fsCustomImage" accept="image/png,image/jpeg,image/webp" hidden /><button class="fs-material-confirm" type="button" data-board="apply" ${index===null||!current?'disabled':''}>保存到我的小组件</button>`);
   }
-  function gallery(){returnTo='gallery';renderPage('fs-gallery',`<header class="fs-summary-header"><h2>组件汇总</h2><button type="button" class="fs-summary-help" data-board="guide">如何添加到桌面<i data-lucide="circle-help"></i></button><button type="button" class="fs-summary-close" data-board="back" title="返回能量搭配" aria-label="关闭组件汇总"><i data-lucide="x"></i></button></header><div class="fs-summary-grid" data-annotation-id="energy-summary">${['wind','mountain','water','bamboo','gold','jade','fortune'].map(kind=>`<button type="button" data-board="element" data-kind="${kind}"><img src="${image(summaryStyle(kind))}" alt="${materials[kind].name} · ${summaryStyle(kind)[1]}" /><span>${materials[kind].name}</span></button>`).join('')}</div>`);phone.querySelector('[data-app-page="fs-gallery"]').scrollTop=summaryScroll;}
+  function syncComponentKinds(){window.__desktopComponents?.resources().forEach(c=>{if(!materials[c.kind])materials[c.kind]={name:c.name,meaning:'',styles:window.__desktopComponents.styles(c.kind)};});}
+  function gallery(){syncComponentKinds();const kinds=[...new Set(['wind','mountain','water','bamboo','gold','jade','fortune',...(window.__energyColumns?.kinds()||[])])];returnTo='gallery';renderPage('fs-gallery',`<header class="fs-summary-header"><h2>组件汇总</h2><button type="button" class="fs-summary-help" data-board="guide">如何添加到桌面<i data-lucide="circle-help"></i></button><button type="button" class="fs-summary-close" data-board="back" title="返回能量搭配" aria-label="关闭组件汇总"><i data-lucide="x"></i></button></header><div class="fs-summary-grid" data-annotation-id="energy-summary">${kinds.map(kind=>`<button type="button" data-board="element" data-kind="${kind}"><img src="${image(summaryStyle(kind))}" alt="${materials[kind].name} · ${summaryStyle(kind)[1]}" /><span>${materials[kind].name}</span></button>`).join('')}</div>`);phone.querySelector('[data-app-page="fs-gallery"]').scrollTop=summaryScroll;}
   function startInstall(items){const t=selectedTheme();const plan={name:t.name+'桌面搭配',ids:items.map(w=>w.id),category:t.name,intro:t.line,layout:''};window.__themeWidgetFlow.install(items,plan,drawBoard);}
   document.addEventListener('click',e=>{
     if(e.target.closest('[data-current-tab="fengshui"]')){e.preventDefault();e.stopImmediatePropagation();drawBoard();}
@@ -145,12 +147,14 @@
       const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});
       const picture=new Image();picture.src=data;await picture.decode();
       if(!phone.querySelector('[data-app-page="fs-materials"].active')||pending.kind!==previous.kind)return;
-      const style=['custom-'+previous.kind+'-'+Date.now(),'自定义图片','',data];
+      const componentId=availableStyles(previous.kind).find(s=>s[0]===previous.style)?.[5]||defaultStyle(previous.kind)[5];
+      const style=['custom-'+previous.kind+'-'+Date.now(),'自定义图片','',data,false,componentId];
       materials[previous.kind].styles.push(style);
       picker(previous.index,previous.kind);chooseStyle(style[0]);
     }catch(_){showToast('图片读取失败，请重新选择');}
   });
   window.addEventListener('energy-columns-changed',()=>{
+    syncComponentKinds();
     const active=phone.querySelector('.app-page.active')?.dataset.appPage;
     if(active==='fs-gallery')gallery();
     else if(active==='fs-board')drawBoard();
