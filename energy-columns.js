@@ -19,7 +19,8 @@
     const grid=document.querySelector('.fs-summary-grid');if(!grid)return;
     ordered().forEach(c=>{const el=grid.querySelector(`[data-kind="${c.id}"]`);if(el){el.hidden=!window.__energyColumns.visible(c.id);grid.append(el);}});
   }
-  window.__energyColumns={enabled:()=>state.enabled,visible:kind=>state.enabled&&!!state.columns.find(c=>c.id===kind)?.enabled&&linked(kind).some(r=>r.enabled),resourceIds:kind=>linked(kind).filter(r=>r.enabled).map(r=>r.id),refreshGallery};
+  const energyEnabled=()=>state.enabled&&window.__appSwitches?.showEnergy()!==false;
+  window.__energyColumns={enabled:energyEnabled,visible:kind=>energyEnabled()&&!!state.columns.find(c=>c.id===kind)?.enabled&&linked(kind).some(r=>r.enabled),resourceIds:kind=>linked(kind).filter(r=>r.enabled).map(r=>r.id),refreshGallery};
   const screen=document.createElement('section');screen.className='screen fs-admin energy-columns';screen.dataset.screen='energy-columns';
   document.querySelector('.workspace').append(screen);
   const menu=document.querySelector('.sidebar nav button:nth-child(2)');
@@ -29,9 +30,10 @@
   const previousColumns=[['我的',''],['动态壁纸','dynamic_wallpaper'],['静态壁纸','static_wallpaper'],['主题','theme_template'],['首页顶部banner','wallpaper_top_banner'],['首页顶部金刚区','wallpaper_top_category'],['开通页资源','open_page_resources'],['小组件',''],['挂件壁纸','hanging_wallpaper']];
   const rowId=id=>id==='energy'?'208900000000000001':'2089000000000000'+String(state.columns.findIndex(c=>c.id===id)+2).padStart(2,'0');
   function applyApp(){
-    document.querySelector('.phone-shell').classList.toggle('energy-disabled',!state.enabled);
-    const tab=document.querySelector('[data-current-tab="fengshui"]');tab.hidden=!state.enabled;
-    if(!state.enabled){const active=document.querySelector('.app-page.active')?.dataset.appPage;if(active?.startsWith('fs-')||active==='themes')setAppPage('home');}
+    const enabled=energyEnabled();
+    document.querySelector('.phone-shell').classList.toggle('energy-disabled',!enabled);
+    const tab=document.querySelector('[data-current-tab="fengshui"]');tab.hidden=!enabled;
+    if(!enabled){const active=document.querySelector('.app-page.active')?.dataset.appPage;if(active?.startsWith('fs-')||active==='themes')setAppPage('home');}
     window.dispatchEvent(new Event('energy-columns-changed'));
   }
   function persist(){try{localStorage.setItem(key,JSON.stringify(state));}catch(_){showToast('浏览器存储已满，本次修改仅在当前页面保留');}applyApp();}
@@ -131,5 +133,6 @@
   document.addEventListener('input',e=>{if(e.target.id==='energyAssociateSearch')dialog.querySelectorAll('[data-associate-name]').forEach(el=>{el.hidden=!el.dataset.associateName.includes(e.target.value.trim());});});
   window.addEventListener('storage',e=>{if(e.key===key){try{const data=JSON.parse(e.newValue);if(data&&Array.isArray(data.columns)){state=data;hydrateLinks();applyApp();if(screen.classList.contains('active'))render();}}catch(_){}}});
   window.addEventListener('energy-columns-changed',refreshGallery);
+  window.addEventListener('app-switches-changed',applyApp);
   applyApp();
 })();
