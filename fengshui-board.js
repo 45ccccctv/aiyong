@@ -1,25 +1,33 @@
 (function(){
   'use strict';
   const materials={
-    water:{name:'水',meaning:'流动 · 从容 · 生机',styles:[['sea','海面','fs-sea'],['water','水韵','water']]},
-    mountain:{name:'山',meaning:'沉稳 · 陪伴 · 守望',styles:[['mountain','预设','fs-mountain'],['peak','峻岭','peak'],['ink','水墨字','ink']]},
-    gold:{name:'金',meaning:'积累 · 珍惜 · 丰盈',styles:[['gold','金色寄语','fs-gold'],['fortune','金如意','fs-fortune']]},
-    wind:{name:'风',meaning:'人缘 · 变化 · 灵感',styles:[['wind','预设','fs-wind'],['wind-red','国风线描','fs-wind-red'],['wind-cloud','云间','fs-wind-cloud'],['wind-grass','清风','fs-wind-grass'],['wind-wave','国韵','fs-wind-wave'],['wind-ink','水墨字','fs-wind-ink']]},
-    jade:{name:'玉',meaning:'温润 · 平静 · 美好',styles:[['jade','预设','fs-jade'],['jade-green','翠色','fs-jade-green'],['jade-landscape','国韵','fs-jade-landscape'],['jade-marble','山纹','fs-jade-marble'],['jade-ink','水墨字','fs-jade-ink']]},
-    bamboo:{name:'竹',meaning:'成长 · 专注 · 坚韧',styles:[['bamboo','青竹','fs-bamboo']]},
-    fortune:{name:'如意',meaning:'心愿 · 祝福 · 期许',styles:[['fortune','金如意','fs-fortune']]}
+    water:{name:'水',meaning:'财源 · 汇聚 · 生机',styles:[['sea','水','reference-water'],['water','水韵','water']]},
+    mountain:{name:'山',meaning:'稳固 · 守护 · 登峰',styles:[['mountain','预设','reference-mountain'],['peak','峻岭','peak'],['ink','水墨字','ink']]},
+    gold:{name:'金',meaning:'行动 · 专注 · 丰盈',styles:[['gold','金','reference-gold'],['fortune','金如意','fs-fortune']]},
+    wind:{name:'风',meaning:'人缘 · 机会 · 突破',styles:[['wind','预设','reference-wind'],['wind-red','国风线描','fs-wind-red'],['wind-cloud','云间','fs-wind-cloud'],['wind-grass','清风','fs-wind-grass'],['wind-wave','国韵','fs-wind-wave'],['wind-ink','水墨字','fs-wind-ink']]},
+    jade:{name:'玉',meaning:'温润 · 平安 · 相伴',styles:[['jade','预设','reference-jade'],['jade-green','翠色','fs-jade-green'],['jade-landscape','国韵','fs-jade-landscape'],['jade-marble','山纹','fs-jade-marble'],['jade-ink','水墨字','fs-jade-ink']]},
+    bamboo:{name:'竹',meaning:'启智 · 成长 · 生机',styles:[['bamboo','青竹','reference-bamboo']]},
+    fortune:{name:'如意',meaning:'顺心 · 所愿 · 如意',styles:[['fortune','如意','reference-fortune']]},
+    ingot:{name:'金元宝',meaning:'聚财 · 纳福 · 丰盈',styles:[['ingot','金元宝','reference-ingot']]},
+    gourd:{name:'玉葫芦',meaning:'养身 · 静心 · 安康',styles:[['gourd','玉葫芦','reference-gourd']]},
+    abacus:{name:'金算盘',meaning:'经营 · 积财 · 有道',styles:[['abacus','金算盘','reference-abacus']]},
+    seal:{name:'印章',meaning:'进阶 · 腾达 · 主局',styles:[['seal','朱砂印','reference-seal']]},
+    lotus:{name:'白莲',meaning:'清心 · 守念 · 澄明',styles:[['lotus','白莲花','reference-lotus']]}
   };
   const themes=[
-    {id:'wealth',name:'招财位',en:'Wealth',line:'心有所期，日有所得。',slots:[['water',0,0,'聚财位'],['mountain',0,4,'人缘位']]},
-    {id:'career',name:'事业位',en:'Career',line:'行有所向，步履从容。',slots:[['mountain',2,0,'生长位'],['gold',1,2,'中宫位'],['wind',2,4,'开运位']]},
-    {id:'study',name:'学业位',en:'Study',line:'日积月累，学有所成。',slots:[['bamboo',2,0,'生长位'],['gold',1,2,'中宫位']]},
-    {id:'wellness',name:'健康位',en:'Wellness',line:'愿日常安稳，身心自在。',slots:[['bamboo',2,0,'生长位'],['jade',0,4,'人缘位']]},
-    {id:'smooth',name:'顺遂位',en:'Smooth Sailing',line:'清风相伴，从容前行。',slots:[['mountain',2,0,'生长位'],['wind',2,4,'开运位']]},
-    {id:'peace',name:'平安位',en:'Peace',line:'山守心安，温玉常伴。',slots:[['mountain',0,0,'聚财位'],['jade',0,4,'人缘位']]},
-    {id:'love',name:'桃花位',en:'Love',line:'缘起于风，情定岁月。',slots:[['wind',0,4,'人缘位'],['jade',2,4,'开运位']]},
-    {id:'wish',name:'如意位',en:'Good Fortune',line:'心有所愿，诸事如意。',slots:[['fortune',2,4,'开运位']]},
-    {id:'treasure',name:'聚财元宝',en:'Golden Wishes',line:'珍惜所得，收藏好愿。',slots:[['gold',1,2,'中宫位']]},
-    {id:'jade-gift',name:'温玉寄愿',en:'Jade Wishes',line:'温润随身，安然相伴。',slots:[['jade',1,2,'中宫位']]}
+    {id:'wealth',name:'招财位',en:'Wealth',line:'引财入局，聚财有库。',slots:[['water',0,0,'聚财位 巽'],['mountain',0,4,'人缘位 艮']],descriptions:['财源流入，汇聚财富。','聚人守财，稳固根基。']},
+    {id:'career',name:'事业位',en:'Career',line:'行动、突破、登峰。',slots:[['gold',1,2,'中宫位 极'],['wind',2,4,'开运位 乾'],['mountain',2,0,'生长位 坤']],descriptions:['激发行动，提升执行力。','带来机会与突破。','事业稳步向上。']},
+    {id:'study',name:'学业位',en:'Study',line:'启智成长，学有所成。',slots:[['bamboo',2,0,'生长位 坤'],['gold',1,2,'中宫位 极']],descriptions:['知识累积，持续成长。','保持专注，提高效率。']},
+    {id:'wellness',name:'健康位',en:'Wellness',line:'水养万物，生生不息。',slots:[['water',1,2,'中宫位 极'],['bamboo',2,0,'生长位 坤']],descriptions:['滋养身心。','生机常在。']},
+    {id:'smooth',name:'顺遂位',en:'Smooth Sailing',line:'诸事顺遂，心想事成。',slots:[['wind',2,4,'开运位 乾'],['mountain',2,0,'生长位 坤']],descriptions:['顺势而行。','步步稳进。']},
+    {id:'peace',name:'平安位',en:'Peace',line:'山守福地，玉佑平安。',slots:[['mountain',0,0,'聚财位 巽'],['jade',0,4,'人缘位 艮']],descriptions:['稳固守护。','平安祥和。']},
+    {id:'love',name:'桃花位',en:'Love',line:'缘起于风，情定于月。',slots:[['wind',0,4,'人缘位 艮'],['jade',2,4,'开运位 乾']],descriptions:['引动缘分，拓展人缘。','温柔相伴，滋养关系。']},
+    {id:'wish',name:'如意位',en:'Good Fortune',line:'心有所愿，诸事如意。',slots:[['fortune',2,4,'开运位 乾']],descriptions:['职场奔波、创业经营、顺心所愿，诸事如意。']},
+    {id:'treasure',name:'聚财元宝',en:'Gold Ingot',line:'聚财纳福，财库丰盈。',slots:[['ingot',0,0,'聚财位 巽']],descriptions:['经商理财、财富累积、聚财纳福，财库丰盈。']},
+    {id:'jade-gift',name:'安康葫芦',en:'Jade Gourd',line:'纳福护身，安康常伴。',slots:[['gourd',0,4,'人缘位 艮']],descriptions:['养身静心、家庭相伴、纳福护身，安康常伴。']},
+    {id:'abacus',name:'积财算盘',en:'Gold Abacus',line:'善于经营，积财有道。',slots:[['abacus',0,0,'聚财位 巽']],descriptions:['经商创业、投资经营、善于经营，积财有道。']},
+    {id:'seal',name:'权成印章',en:'Vermilion Seal',line:'定志立身，掌握主局。',slots:[['seal',1,2,'中宫位 极']],descriptions:['职场进阶、创业发展、事业腾达、定志立身，掌握主局。']},
+    {id:'lotus',name:'白莲清心',en:'White Lotus',line:'清心守念，澄明自持。',slots:[['lotus',1,2,'中宫位 极']],descriptions:['读书备考、创作工作、清心守念，澄明自持。']}
   ];
   const storageKey='aiyong-fengshui-board-v1';
   let state={theme:'wealth',choices:{},summaryStyles:{},customStyles:{}};
@@ -45,11 +53,11 @@
   floatingHelp.innerHTML='<span class="fs-floating-help-label"><span>如何添加到桌面</span><i data-lucide="circle-help"></i></span>';
   document.querySelector('.phone-shell').append(floatingHelp);
   const zones=[
-    {id:'center',name:'中宫位',location:'屏幕中间',col:1,row:2,meaning:'平衡 · 安定',text:'以屏幕中心作为整套搭配的视觉重心，寄托内心安定、做事有序的心愿。',suggestion:'适合选择金色寄语或简洁的文字组件，给桌面留出呼吸感。',theme:'career'},
-    {id:'growth',name:'生长位',location:'屏幕右上',col:2,row:0,meaning:'成长 · 行动',text:'将向上生长的意象放在右上区域，寄托持续学习、稳步前行的心愿。',suggestion:'可搭配山或竹的素材，与学业、事业主题呼应。',theme:'study'},
-    {id:'prosperity',name:'聚财位',location:'屏幕左上',col:0,row:0,meaning:'积累 · 丰盈',text:'在左上区域放置流动或丰盈的意象，表达珍惜所得、日有所积的愿望。',suggestion:'可选择水或金色素材，按桌面配色挑选喜欢的样式。',theme:'wealth'},
-    {id:'relationship',name:'人缘位',location:'屏幕左下',col:0,row:4,meaning:'陪伴 · 联结',text:'把温润、轻盈的意象留在左下区域，寄托人与人之间温和相处、彼此陪伴的心愿。',suggestion:'可选择风、玉等素材，搭配柔和的色彩。',theme:'love'},
-    {id:'opportunity',name:'开运位',location:'屏幕右下',col:2,row:4,meaning:'灵感 · 期许',text:'用右下区域承载新的心愿，表达保持开放、迎接变化的心情。',suggestion:'可选择风或如意组件，作为桌面中一处有寓意的点缀。',theme:'wish'}
+    {id:'center',name:'中宫位',location:'屏幕中间',col:1,row:2,meaning:'行动 · 专注',text:'金居中宫，取坚定与丰盈之意，寄托凝神聚力、行有所成的心愿。',suggestion:'可搭配金色组件，呼应事业位的行动突破与学业位的专注有成。',theme:'career'},
+    {id:'growth',name:'生长位',location:'屏幕右上',col:2,row:0,meaning:'启智 · 成长',text:'山稳而上，竹节常青。以山与竹的意象，寄托事业稳进、学有所成的心愿。',suggestion:'事业主题可搭配山，寓意稳步登峰；学业主题可搭配竹，寓意启智成长。',theme:'study'},
+    {id:'prosperity',name:'聚财位',location:'屏幕左上',col:0,row:0,meaning:'聚财 · 纳福',text:'水寓财源汇聚，山寓根基稳固，金寓财库丰盈。寄愿引财入局，聚财有库。',suggestion:'可按主题搭配水、山或金色组件，呼应汇聚、守护与丰盈的寓意。',theme:'wealth'},
+    {id:'relationship',name:'人缘位',location:'屏幕左下',col:0,row:4,meaning:'良缘 · 相伴',text:'风取良缘来往之意，玉取温柔相伴之意，寄托人缘和合、平安相守的美好愿望。',suggestion:'可搭配风或玉，呼应引动缘分、拓展人缘与温柔相伴的寓意。',theme:'love'},
+    {id:'opportunity',name:'开运位',location:'屏幕右下',col:2,row:4,meaning:'机遇 · 如意',text:'风寓顺势而行，玉寄温柔良缘，如意寄心有所愿。愿前路有机，诸事如意。',suggestion:'可搭配风、玉或如意，呼应机遇突破、情缘相伴与顺心所愿。',theme:'wish'}
   ];
   let activeZone='overview';
   function directions(){
@@ -78,8 +86,9 @@
   function drawBoard(){
     if(window.__energyColumns&&!window.__energyColumns.enabled()){setAppPage('home');return;}
     const t=selectedTheme();
-    renderPage('fs-board',`<header class="fs-board-header"><button type="button" class="fs-board-exit" data-board="home" title="返回小组件" aria-label="返回小组件"><i data-lucide="chevron-left"></i></button><button type="button" class="fs-position-entry" data-board="directions">方位解读</button><h2>能量桌面</h2><button type="button" data-board="gallery" title="组件汇总" aria-label="组件汇总"><i data-lucide="layout-grid"></i></button></header><div class="fs-board-scene" data-annotation-id="fs-board-scene"><div class="fs-board-phone"><div class="fs-board-layout"><div class="fs-board-placeholders">${'<i></i>'.repeat(24)}</div>${t.slots.map(([kind,c,r,position],i)=>`<button class="fs-board-piece" style="--col:${c};--row:${r}" data-board="pick" data-index="${i}" type="button" aria-label="替换${position}的${materials[kind].name}"><img src="${image(styleFor(t,i))}" alt="${materials[kind].name} · ${styleFor(t,i)[1]}" /><span>${materials[kind].name}</span></button>`).join('')}</div><div class="fs-board-dock">${'<i></i>'.repeat(4)}</div></div><nav class="fs-board-rail" aria-label="能量主题">${themes.map(item=>`<button type="button" data-board="theme" data-id="${item.id}" class="${item.id===t.id?'active':''}"><b>${item.name}</b><small>${item.en}</small></button>`).join('')}</nav></div><div class="fs-board-description"><h3>${t.line}</h3><div class="fs-board-explanations">${t.slots.map(([kind,,,position],i)=>`<button type="button" data-board="pick" data-index="${i}"><b>${position} · ${materials[kind].name}</b><span>${materials[kind].meaning}</span></button>`).join('')}</div></div>`);
-    const rail=phone.querySelector('.fs-board-rail'),index=themes.indexOf(t);rail.scrollTop=Math.max(0,index*43-rail.clientHeight/2+22);
+    renderPage('fs-board',`<header class="fs-board-header"><button type="button" class="fs-board-exit" data-board="home" title="返回小组件" aria-label="返回小组件"><i data-lucide="chevron-left"></i></button><button type="button" class="fs-position-entry" data-board="directions">方位解读</button><h2>能量桌面</h2><button type="button" data-board="gallery" title="组件汇总" aria-label="组件汇总"><i data-lucide="layout-grid"></i></button></header><div class="fs-board-scene" data-annotation-id="fs-board-scene"><div class="fs-board-phone"><div class="fs-board-layout"><div class="fs-board-placeholders">${'<i></i>'.repeat(24)}</div>${t.slots.map(([kind,c,r,position],i)=>`<button class="fs-board-piece" style="--col:${c};--row:${r}" data-board="pick" data-index="${i}" type="button" aria-label="替换${position}的${materials[kind].name}"><img src="${image(styleFor(t,i))}" alt="${materials[kind].name} · ${styleFor(t,i)[1]}" /><span>${materials[kind].name}</span></button>`).join('')}</div><div class="fs-board-dock">${'<i></i>'.repeat(4)}</div></div><nav class="fs-board-rail" aria-label="能量主题">${themes.map(item=>`<button type="button" data-board="theme" data-id="${item.id}" class="${item.id===t.id?'active':''}"><b>${item.name}</b><small>${item.en}</small></button>`).join('')}</nav></div><div class="fs-board-description"><h3>${t.line}</h3><div class="fs-board-explanations">${t.slots.map(([kind,,,position],i)=>`<button type="button" data-board="pick" data-index="${i}"><b>${position} - ${materials[kind].name}</b><span>${t.descriptions[i]}</span></button>`).join('')}</div></div>`);
+    const rail=phone.querySelector('.fs-board-rail'),active=rail.querySelector('.active');
+    rail.scrollTo({top:active.getBoundingClientRect().top-rail.getBoundingClientRect().top+rail.scrollTop-rail.clientHeight/2+active.offsetHeight/2,behavior:'instant'});
     phone.querySelectorAll('[data-app-page="fs-board"] [data-index]').forEach(el=>{el.hidden=!visibleKind(t.slots[Number(el.dataset.index)][0]);});
   }
   function picker(index,kindOverride){

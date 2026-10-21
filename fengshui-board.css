@@ -49,6 +49,9 @@
 .fs-board-piece { position:absolute;left:calc(var(--col)*25%);top:calc(var(--row)*16.6667%);width:calc(50% - 2px);height:calc(33.3333% - 2px);padding:0;overflow:hidden;background:#eee8f4;border:1px solid #d8c69e;border-radius:7px;color:#fff; }
 .fs-board-piece img { width:100%;height:100%;object-fit:cover;display:block; }.fs-board-piece>span { position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:11px;font-weight:600;padding:6px 0 3px;background:linear-gradient(transparent,#0009); }
 .fs-board-piece:focus-visible { outline:2px solid #d2a84a;outline-offset:2px; }
+.fs-board-piece:has(img[src*="reference-"])>span { display:none; }
+.fs-board-explanations:has(>button:only-child) { grid-template-columns:minmax(0,1fr); }
+.fs-board-explanations:has(>button:nth-child(3)) { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .fs-board-dock { margin-top:11px;border-top:1px solid #e7dfed;padding-top:10px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px; }.fs-board-dock i { aspect-ratio:1;background:#f1edf5;border-radius:5px; }
 .fs-board-rail { overflow-y:auto;max-height:290px;scrollbar-width:none;align-self:center;scroll-behavior:smooth;mask-image:linear-gradient(transparent,#000 4%,#000 94%,transparent); }
 .fs-board-rail button { position:relative;width:100%;min-height:43px;background:transparent;padding:5px 0 5px 10px;color:#8f8597;text-align:left;border-radius:0; }

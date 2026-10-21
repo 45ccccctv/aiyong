@@ -3,14 +3,22 @@
   const key='aiyong-energy-columns-v1',materials=window.__desktopComponents;
   const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const stamp=()=>new Date().toLocaleString('sv-SE');
-  const elementOrder=['wind','mountain','water','bamboo','gold','jade','fortune'];
+  const elementOrder=['wind','mountain','water','bamboo','gold','jade','fortune','ingot','gourd','abacus','seal','lotus'];
   const makeLink=(r,i)=>({id:r.id,resourceId:'209100'+r.id.slice(6),sort:(i+1)*10,enabled:true,updated:stamp()});
   function restore(data){
     const ordered=materials.resources().sort((a,b)=>(elementOrder.indexOf(a.kind)<0?99:elementOrder.indexOf(a.kind))-(elementOrder.indexOf(b.kind)<0?99:elementOrder.indexOf(b.kind)));
-    const base={enabled:true,sort:100,modelVersion:3,resources:ordered.map(makeLink)};
+    const base={enabled:true,sort:100,modelVersion:3,referenceVersion:1,resources:ordered.map(makeLink)};
     if(!data)return base;
     base.enabled=data.enabled!==false;base.sort=data.sort??100;
-    if(data.modelVersion===3&&Array.isArray(data.resources)){base.resources=data.resources;return base;}
+    if(data.modelVersion===3&&Array.isArray(data.resources)){
+      base.resources=[...data.resources];
+      if(!data.referenceVersion){
+        const added=ordered.filter(r=>['ingot','gourd','abacus','seal','lotus'].includes(r.kind)&&!base.resources.some(link=>link.id===r.id));
+        const lastSort=Math.max(0,...base.resources.map(link=>Number(link.sort)||0));
+        base.resources.push(...added.map((r,i)=>({...makeLink(r,i),sort:lastSort+(i+1)*10})));
+      }
+      return base;
+    }
     const columns=Array.isArray(data.columns)?[...data.columns].sort((a,b)=>a.sort-b.sort):materials.categories();
     const seen=new Set(),merged=[];
     columns.forEach(column=>{
@@ -21,10 +29,12 @@
       else links=old.length&&source.length?[{...old[0],id:source[0].id,enabled:old.some(r=>r.enabled)}]:[];
       [...links].sort((a,b)=>a.sort-b.sort).forEach(link=>{if(!seen.has(link.id)){seen.add(link.id);merged.push({...link,enabled:link.enabled!==false&&column.enabled!==false,sort:(merged.length+1)*10});}});
     });
+    ordered.filter(r=>['ingot','gourd','abacus','seal','lotus'].includes(r.kind)&&!seen.has(r.id)).forEach(r=>merged.push(makeLink(r,merged.length)));
     base.resources=merged;return base;
   }
   let stored=null;try{stored=JSON.parse(localStorage.getItem(key)||'null');}catch(_){}
   let state=restore(stored);
+  try{localStorage.setItem(key,JSON.stringify(state));}catch(_){}
   const linked=()=>state.resources.map((link,index)=>{const component=materials.resources().find(r=>r.id===link.id);return component?{...component,...link,enabled:link.enabled&&component.enabled!==false,index}:null;}).filter(Boolean).sort((a,b)=>a.sort-b.sort||a.index-b.index);
   const energyEnabled=()=>state.enabled&&window.__appSwitches?.showEnergy()!==false;
   const kinds=()=>[...new Set(linked().filter(r=>r.enabled).map(r=>r.kind))];

@@ -9,9 +9,26 @@
     const backgrounds=legacy.resources(c.id).map(b=>({id:b.id,code:b.id,name:b.name,url:b.image,vip:b.vip}));
     return {id:'2131000000000000'+String(i+1).padStart(2,'0'),name:c.name,kind:c.id,tags:'',code:'energy_'+c.id,functionType:'能量组件',backgrounds,cover:backgrounds[0].url,badge:'',enabled:true,audience:'所有用户',size:'2*2',updated:stamp(),updatedBy:'运营'};
   });
-  let components=initial;
-  try{const stored=JSON.parse(localStorage.getItem(key)||'null');if(Array.isArray(stored))components=stored;}catch(_){}
-  components=components.map(c=>({...c,functionType:'能量组件'}));
+  function restore(stored){
+    if(stored?.version===2&&Array.isArray(stored.components))return stored.components;
+    if(!Array.isArray(stored))return structuredClone(initial);
+    const migrated=stored.map(component=>{
+      const seed=initial.find(c=>c.id===component.id);
+      if(!seed)return component;
+      const first=seed.backgrounds[0],backgrounds=[...component.backgrounds];
+      const index=backgrounds.findIndex(b=>b.id===first.id);
+      if(index>=0&&backgrounds[index].url.startsWith('./assets/'))backgrounds[index]={...backgrounds[index],url:first.url};
+      else if(index<0||backgrounds[index].url!==first.url)backgrounds.unshift({...first,id:first.id+'-reference',code:first.id+'-reference'});
+      return {...component,backgrounds,cover:component.cover?.startsWith('./assets/')?seed.cover:component.cover};
+    });
+    initial.filter(c=>['ingot','gourd','abacus','seal','lotus'].includes(c.kind)).forEach(seed=>{
+      if(!migrated.some(c=>c.id===seed.id))migrated.push(structuredClone(seed));
+    });
+    return migrated;
+  }
+  let stored=null;try{stored=JSON.parse(localStorage.getItem(key)||'null');}catch(_){}
+  let components=restore(stored).map(c=>({...c,functionType:'能量组件'}));
+  try{localStorage.setItem(key,JSON.stringify({version:2,components}));}catch(_){}
   function resources(kind){return components.filter(c=>kind===undefined||c.kind===kind).map(c=>({id:c.id,name:c.name,kind:c.kind,image:c.cover||c.backgrounds[0]?.url||'',vip:c.audience==='会员用户',size:c.size,enabled:c.enabled,backgroundCount:c.backgrounds.length}));}
   function styles(kind,ids){
     const list=ids?ids.map(id=>components.find(c=>c.id===id&&c.kind===kind)).filter(Boolean):components.filter(c=>c.kind===kind);
@@ -76,7 +93,7 @@
   }
   function updateUploadStatus(){dialog.querySelector('#dcUploadStatus').textContent=uploading?'图片处理中…':'';dialog.querySelector('button[type="submit"]').disabled=uploading>0;dialog.querySelectorAll('[data-dc-upload]').forEach(input=>{input.disabled=uploading>0;});}
   function persist(next){
-    try{localStorage.setItem(key,JSON.stringify(next));}catch(_){return false;}
+    try{localStorage.setItem(key,JSON.stringify({version:2,components:next}));}catch(_){return false;}
     components=next;window.dispatchEvent(new Event('desktop-components-changed'));return true;
   }
   menu.addEventListener('click',open);
@@ -113,5 +130,5 @@
     if(!persist(next)){showError('浏览器存储空间不足，请减少图片数量或压缩图片后重试，当前表单已保留');return;}
     dialog.close();render();showToast('组件已保存');
   });
-  window.addEventListener('storage',e=>{if(e.key!==key)return;try{const data=JSON.parse(e.newValue||'null');if(Array.isArray(data)){components=data;window.dispatchEvent(new Event('desktop-components-changed'));if(screen.classList.contains('active'))render();}}catch(_){}});
+  window.addEventListener('storage',e=>{if(e.key!==key)return;try{const data=JSON.parse(e.newValue||'null');if(Array.isArray(data)||Array.isArray(data?.components)){components=restore(data);window.dispatchEvent(new Event('desktop-components-changed'));if(screen.classList.contains('active'))render();}}catch(_){}});
 })();
