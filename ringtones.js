@@ -14,7 +14,14 @@
     ['night','星河晚安','温柔的旋律，给日常留一份宁静',1920000]
   ].map(([id,name,description,playCount])=>({id:'ringtone-'+id,name,author:'爱用音频',description,playCount,audio:'./assets/ringtone-'+id+'.wav',fileName:name+'.wav',enabled:true,updated:stamp()}));
   let items=seed,search='',query={name:'',author:'',enabled:''};
-  let column={enabled:true,sort:110,links:[]},resourceQuery={name:'',author:''},columnSaving=false;
+  let column={enabled:true,sort:110,modelVersion:2,tabs:[]},resourceQuery={name:'',author:''},columnSaving=false;
+  let activeTabId='',resourceTabId='',columnLevel='tabs',tabQuery={name:'',enabled:''};
+  function restoreColumn(saved){
+    if(Array.isArray(saved?.tabs))return {...saved,modelVersion:2};
+    const links=Array.isArray(saved?.links)?saved.links:items.map((item,index)=>({id:item.id,sort:(index+1)*10,enabled:true}));
+    const presets=[['recommend','为你推荐',null],['funny','个性搞笑',['call','soft']],['dance','动感DJ',['energy']],['classic','经典怀旧',['lucky','morning']],['gentle','轻柔提示',['breeze','bamboo','night']]];
+    return {enabled:saved?.enabled!==false,sort:saved?.sort??110,modelVersion:2,tabs:presets.map(([id,name,ids],index)=>({id:'ringtone-tab-'+id,name,sort:(index+1)*10,enabled:true,links:links.filter(link=>!ids||ids.some(id=>link.id==='ringtone-'+id)).map(link=>({...link}))}))};
+  }
   let draft=null,pendingFile=null,uploading=false,saving=false,editSession=0;
   let playingId=null,playingScope='app',playRequest=0,sheetItem=null,returnFocus=null;
   const audio=new Audio(),objectUrls=new Map();
@@ -32,13 +39,10 @@
       const data=await readState('catalog');
       if(Array.isArray(data))items=data.map(({category,...item})=>({...item,playCount:item.playCount??null}));
       const savedColumn=await readState('column');
-      if(savedColumn&&Array.isArray(savedColumn.links))column=savedColumn;
-      else{
-        column.links=items.map((item,index)=>({id:item.id,sort:(index+1)*10,enabled:true}));
-        await writeState('column',column);
-      }
+      column=restoreColumn(savedColumn);
+      if(savedColumn?.modelVersion!==2)await writeState('column',column);
     }catch(_){
-      column.links=items.map((item,index)=>({id:item.id,sort:(index+1)*10,enabled:true}));
+      column=restoreColumn(null);
       showToast('铃声存储暂不可用，当前展示内置铃声');
     }
     applyColumn();
@@ -59,7 +63,12 @@
   const isAppActive=()=>app.classList.contains('active')&&document.querySelector('[data-demo-panel="app"]').classList.contains('active');
   const formatCount=n=>n>=100000000?+(n/100000000).toFixed(1)+'亿':n>=10000?+(n/10000).toFixed(1)+'万':String(n);
   const countText=n=>n==null?'—':n.toLocaleString('zh-CN');
-  const linkedItems=()=>column.links.map((link,index)=>{const item=items.find(item=>item.id===link.id);return item?{...item,link,index}:null;}).filter(Boolean).sort((a,b)=>a.link.sort-b.link.sort||a.index-b.index);
+  const orderedTabs=()=>column.tabs.map((tab,index)=>({...tab,index})).sort((a,b)=>a.sort-b.sort||a.index-b.index);
+  const availableTabs=()=>orderedTabs().filter(tab=>tab.enabled);
+  const appTab=()=>availableTabs().find(tab=>tab.id===activeTabId)||availableTabs()[0];
+  const resourceTab=()=>column.tabs.find(tab=>tab.id===resourceTabId);
+  const withTabLinks=links=>({...column,tabs:column.tabs.map(tab=>tab.id===resourceTabId?{...tab,links}:tab)});
+  const linkedItems=(tab=appTab())=>(tab?.links||[]).map((link,index)=>{const item=items.find(item=>item.id===link.id);return item?{...item,link,index}:null;}).filter(Boolean).sort((a,b)=>a.link.sort-b.link.sort||a.index-b.index);
   function audioUrl(item){
     if(typeof item.audio==='string')return item.audio;
     const cached=objectUrls.get(item.id);
@@ -92,15 +101,27 @@
   audio.addEventListener('ended',()=>{playingId=null;syncPlayback();});
   audio.addEventListener('pause',syncPlayback);
   function renderApp(){
-    app.innerHTML=`<header class="ringtone-app-head"><button type="button" data-ring="back" aria-label="返回首页" title="返回"><i data-lucide="chevron-left"></i></button><h2>铃声</h2><button type="button" data-ring="search-toggle" aria-label="搜索铃声" title="搜索"><i data-lucide="search"></i></button></header><form class="ringtone-app-search" role="search" hidden><i data-lucide="search"></i><input type="search" aria-label="搜索铃声名称或作者" placeholder="搜索铃声、作者" value="${esc(search)}" /><button type="button" data-ring="search-clear" aria-label="清空搜索" title="清空"><i data-lucide="x"></i></button></form><div class="ringtone-app-list" data-annotation-id="ringtone-list"></div>`;
-    renderAppList();icons();refreshAnnotations();
+    app.innerHTML=`<header class="ringtone-app-head"><button type="button" data-ring="back" aria-label="返回首页" title="返回"><i data-lucide="chevron-left"></i></button><h2>铃声</h2><button type="button" data-ring="search-toggle" aria-label="搜索铃声" title="搜索"><i data-lucide="search"></i></button></header><form class="ringtone-app-search" role="search" hidden><i data-lucide="search"></i><input type="search" aria-label="搜索铃声名称或作者" placeholder="搜索铃声、作者" value="${esc(search)}" /><button type="button" data-ring="search-clear" aria-label="清空搜索" title="清空"><i data-lucide="x"></i></button></form><nav class="ringtone-categories" role="tablist" aria-label="铃声栏目" data-annotation-id="ringtone-tabs"></nav><div class="ringtone-app-list" id="ringtoneAppPanel" role="tabpanel" data-annotation-id="ringtone-list"></div>`;
+    renderAppTabs();renderAppList();icons();refreshAnnotations();
+  }
+  function renderAppTabs(){
+    const current=appTab();activeTabId=current?.id||'';
+    app.querySelector('.ringtone-categories').innerHTML=availableTabs().map(tab=>`<button type="button" role="tab" id="app-${esc(tab.id)}" data-ring="tab" data-tab="${esc(tab.id)}" aria-controls="ringtoneAppPanel" aria-selected="${tab.id===activeTabId}" tabindex="${tab.id===activeTabId?'0':'-1'}" class="${tab.id===activeTabId?'active':''}">${esc(tab.name)}</button>`).join('');
+    const panel=app.querySelector('.ringtone-app-list');
+    if(current)panel.setAttribute('aria-labelledby','app-'+current.id);else panel.removeAttribute('aria-labelledby');
+    app.querySelector('[role="tab"][aria-selected="true"]')?.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
+  }
+  function selectTab(id,focus=false){
+    if(!availableTabs().some(tab=>tab.id===id))return;
+    stop();closeSheet();activeTabId=id;renderAppTabs();renderAppList();
+    if(focus)app.querySelector('[role="tab"][aria-selected="true"]')?.focus({preventScroll:true});
   }
   function renderAppList(){
     const list=column.enabled?linkedItems().filter(r=>r.enabled&&r.link.enabled&&(!search||[r.name,r.author].some(text=>text.toLowerCase().includes(search.toLowerCase())))):[];
     app.querySelector('.ringtone-app-list').innerHTML=list.map(item=>`<article class="ringtone-row"><button type="button" class="ringtone-preview" data-ring="preview" data-id="${esc(item.id)}" aria-label="试听：${esc(item.name)}"><span class="ringtone-title-line"><b title="${esc(item.name)}">${esc(item.name)}</b>${item.playCount==null?'':`<span class="ringtone-count" title="播放量 ${item.playCount}" aria-label="播放量 ${item.playCount}"><i data-lucide="play"></i>${formatCount(item.playCount)}</span>`}</span><span class="ringtone-subtitle" title="${esc(item.author+' | '+item.description)}">${esc(item.author)}<span> | </span>${esc(item.description)}</span></button><button type="button" class="ringtone-set" data-ring="set" data-id="${esc(item.id)}" aria-label="为${esc(item.name)}设置铃声">设置铃声</button></article>`).join('')||'<div class="ringtone-empty"><i data-lucide="music-2"></i><p>暂无铃声</p></div>';
     syncPlayback();
   }
-  async function openApp(){await ready;if(!column.enabled)return;renderApp();setAppPage('ringtones');syncPlayback();app.scrollTop=0;}
+  async function openApp(){await ready;if(!column.enabled)return;renderApp();setAppPage('ringtones');renderAppTabs();syncPlayback();app.scrollTop=0;}
   function closeSheet(){
     overlay.hidden=true;overlay.innerHTML='';app.removeAttribute('inert');player.removeAttribute('inert');
     if(returnFocus?.isConnected)returnFocus.focus({preventScroll:true});returnFocus=null;
@@ -117,53 +138,82 @@
     entry.hidden=!column.enabled;homeTools.classList.toggle('has-ringtones',column.enabled);
     if(!column.enabled&&app.classList.contains('active')){closeSheet();setAppPage('home');}
     if(playingScope==='app'&&playingId&&!linkedItems().some(item=>column.enabled&&item.enabled&&item.link.enabled&&item.id===playingId))stop();
-    if(app.querySelector('.ringtone-app-list'))renderAppList();
+    if(app.querySelector('.ringtone-app-list')){renderAppTabs();renderAppList();}
     window.__appColumns?.refresh();
   }
-  async function openResources(){
-    await ready;stop();resourceQuery={name:'',author:''};
+  async function openTabColumns(){
+    await ready;stop();columnLevel='tabs';tabQuery={name:'',enabled:''};
     document.querySelectorAll('.sidebar nav button').forEach(b=>b.classList.toggle('active',b===document.querySelector('.sidebar nav button:nth-child(2)')));
     document.querySelector('.topbar h1').textContent='栏目管理';document.querySelector('.topbar p').textContent='小组件中台 / 栏目管理';document.querySelector('.top-actions').hidden=true;
-    setScreen('ringtone-resources');renderResources();
+    setScreen('ringtone-resources');renderColumnPage();
+  }
+  function openResources(id){
+    if(!column.tabs.some(tab=>tab.id===id))return;
+    stop();resourceTabId=id;columnLevel='resources';resourceQuery={name:'',author:''};renderResources();
+  }
+  function renderColumnPage(){if(columnLevel==='tabs')renderTabColumns();else renderResources();}
+  function renderTabColumns(){
+    const list=orderedTabs().filter(tab=>tab.name.includes(tabQuery.name)&&(!tabQuery.enabled||String(tab.enabled)===tabQuery.enabled));
+    resourceScreen.innerHTML=`<div class="energy-crumb">首页 / <button type="button" class="text-link" data-rcol="root">爱用小组件</button><span>/</span><span>铃声提示音</span></div><div class="fs-admin-heading"><h2>铃声提示音 · 下级栏目</h2><button type="button" class="text-link" data-rcol="root">返回上级</button></div><form class="energy-search" id="ringtoneTabSearch"><label>栏目名称<input name="name" value="${esc(tabQuery.name)}" placeholder="请输入栏目名称" /></label><label>状态<select name="enabled"><option value="">全部</option><option value="true" ${tabQuery.enabled==='true'?'selected':''}>启用</option><option value="false" ${tabQuery.enabled==='false'?'selected':''}>停用</option></select></label><button type="submit" class="primary"><i data-lucide="search"></i>查询</button><button type="button" class="ghost" data-rcol="reset-tabs"><i data-lucide="rotate-ccw"></i>重置</button></form><div class="energy-resource-actions"><button type="button" class="primary" data-rcol="new-tab"><i data-lucide="plus"></i>新增栏目</button></div><div class="fs-table-wrap"><table class="fs-table ringtone-tab-table"><thead><tr>${['序号','栏目 ID','栏目名称','下级资源类型','排序','状态','关联铃声数','操作'].map(text=>`<th>${text}</th>`).join('')}</tr></thead><tbody>${list.map((tab,index)=>`<tr data-ringtone-tab="${esc(tab.id)}"><td>${index+1}</td><td>${esc(tab.id)}</td><td><b>${esc(tab.name)}</b></td><td>铃声</td><td>${tab.sort}</td><td><span class="${tab.enabled?'fs-live':'energy-off'}">${tab.enabled?'启用':'停用'}</span></td><td>${linkedItems(tab).length}</td><td class="ringtone-admin-actions"><button type="button" class="text-link" data-rcol="edit-tab" data-id="${esc(tab.id)}">编辑</button><button type="button" class="text-link" data-rcol="tab-resources" data-id="${esc(tab.id)}">下级</button><button type="button" class="fs-delete" data-rcol="delete-tab" data-id="${esc(tab.id)}">删除</button></td></tr>`).join('')||'<tr><td colspan="8" class="fs-empty">暂无栏目</td></tr>'}</tbody></table></div><p class="energy-count">共 ${list.length} 条</p><p class="fs-annotation" data-annotation-id="ringtone-tab-columns">批注：每个启用的下级栏目对应 App 顶部的一个 Tab，名称与顺序由栏目配置决定。进入下级关联铃声，同一铃声可关联多个栏目；停用栏目会隐藏对应 Tab，删除栏目不删除铃声资源。</p>`;
+    icons();refreshAnnotations();
+  }
+  function editTab(id){
+    const tab=column.tabs.find(tab=>tab.id===id)||{id:'ringtone-tab-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),name:'',sort:Math.max(0,...column.tabs.map(tab=>tab.sort))+10,enabled:true,links:[]};
+    columnDialog.classList.remove('energy-associate-dialog');
+    columnDialog.innerHTML=`<form id="ringtoneTabEdit" data-tab="${esc(tab.id)}"><header><h2 id="ringtoneColumnTitle">${id?'编辑':'新增'}栏目</h2><button type="button" data-rcol="close" aria-label="关闭"><i data-lucide="x"></i></button></header><label>栏目名称<input name="name" required maxlength="20" value="${esc(tab.name)}" placeholder="请输入 App Tab 名称" /></label><label>下级资源类型<input value="铃声" readonly /></label><label>排序<input name="sort" type="number" min="0" max="999999" step="1" required value="${tab.sort}" /></label><label>状态<select name="enabled"><option value="true" ${tab.enabled?'selected':''}>启用</option><option value="false" ${!tab.enabled?'selected':''}>停用</option></select></label><p id="ringtoneColumnError" class="fs-annotation" role="alert"></p><footer><button type="button" class="ghost" data-rcol="close">取消</button><button type="submit" class="primary">保存</button></footer></form>`;
+    icons();columnDialog.showModal();
   }
   function renderResources(){
-    const list=linkedItems().filter(item=>item.name.includes(resourceQuery.name)&&item.author.includes(resourceQuery.author));
-    resourceScreen.innerHTML=`<div class="energy-crumb">首页 / <button type="button" class="text-link" data-rcol="root">爱用小组件</button><span>/</span><span>铃声提示音</span></div><div class="fs-admin-heading"><h2>铃声提示音 · 栏目资源</h2><button type="button" class="text-link" data-rcol="root">返回上级</button></div><form class="energy-search" id="ringtoneResourceSearch"><label>名称<input name="name" placeholder="请输入铃声名称" value="${esc(resourceQuery.name)}" /></label><label>作者<input name="author" placeholder="请输入作者" value="${esc(resourceQuery.author)}" /></label><button type="submit" class="primary"><i data-lucide="search"></i>查询</button><button type="button" class="ghost" data-rcol="reset"><i data-lucide="rotate-ccw"></i>重置</button></form><div class="energy-resource-actions"><button type="button" class="primary" data-rcol="associate"><i data-lucide="plus"></i>添加资源</button></div><div class="fs-table-wrap"><table class="fs-table ringtone-resource-table"><thead><tr>${['序号','资源 ID','名称','作者','播放量','排序','资源状态','关联状态','操作'].map(text=>`<th>${text}</th>`).join('')}</tr></thead><tbody>${list.map((item,index)=>`<tr data-ringtone-link="${esc(item.id)}"><td>${index+1}</td><td>${esc(item.id)}</td><td><b>${esc(item.name)}</b></td><td>${esc(item.author)}</td><td>${countText(item.playCount)}</td><td>${item.link.sort}</td><td><span class="${item.enabled?'fs-live':'energy-off'}">${item.enabled?'启用':'停用'}</span></td><td><span class="${item.link.enabled?'fs-live':'energy-off'}">${item.link.enabled?'启用':'停用'}</span></td><td class="ringtone-admin-actions"><button type="button" class="text-link ringtone-admin-preview" data-ring="preview" data-id="${esc(item.id)}" data-admin-preview><i data-lucide="play"></i>试听</button><button type="button" class="text-link" data-rcol="edit-link" data-id="${esc(item.id)}">编辑</button><button type="button" class="fs-delete" data-rcol="remove" data-id="${esc(item.id)}">解除关联</button></td></tr>`).join('')||'<tr><td colspan="9" class="fs-empty">暂无关联铃声</td></tr>'}</tbody></table></div><p class="energy-count">共 ${list.length} 条</p><p class="fs-annotation" data-annotation-id="ringtone-column">批注：直接关联铃声，不设置分类。栏目、铃声资源和关联均启用时，App 按排序值从小到大展示。解除关联不删除铃声；播放量非必填，未填写时不展示。</p>`;
+    const tab=resourceTab();if(!tab){columnLevel='tabs';renderTabColumns();return;}
+    const list=linkedItems(tab).filter(item=>item.name.includes(resourceQuery.name)&&item.author.includes(resourceQuery.author));
+    resourceScreen.innerHTML=`<div class="energy-crumb">首页 / <button type="button" class="text-link" data-rcol="root">爱用小组件</button><span>/</span><button type="button" class="text-link" data-rcol="tabs">铃声提示音</button><span>/</span><span>${esc(tab.name)}</span></div><div class="fs-admin-heading"><h2>${esc(tab.name)} · 栏目资源</h2><button type="button" class="text-link" data-rcol="tabs">返回上级</button></div><form class="energy-search" id="ringtoneResourceSearch"><label>名称<input name="name" placeholder="请输入铃声名称" value="${esc(resourceQuery.name)}" /></label><label>作者<input name="author" placeholder="请输入作者" value="${esc(resourceQuery.author)}" /></label><button type="submit" class="primary"><i data-lucide="search"></i>查询</button><button type="button" class="ghost" data-rcol="reset"><i data-lucide="rotate-ccw"></i>重置</button></form><div class="energy-resource-actions"><button type="button" class="primary" data-rcol="associate"><i data-lucide="plus"></i>添加资源</button></div><div class="fs-table-wrap"><table class="fs-table ringtone-resource-table"><thead><tr>${['序号','资源 ID','名称','作者','播放量','排序','资源状态','关联状态','操作'].map(text=>`<th>${text}</th>`).join('')}</tr></thead><tbody>${list.map((item,index)=>`<tr data-ringtone-link="${esc(item.id)}"><td>${index+1}</td><td>${esc(item.id)}</td><td><b>${esc(item.name)}</b></td><td>${esc(item.author)}</td><td>${countText(item.playCount)}</td><td>${item.link.sort}</td><td><span class="${item.enabled?'fs-live':'energy-off'}">${item.enabled?'启用':'停用'}</span></td><td><span class="${item.link.enabled?'fs-live':'energy-off'}">${item.link.enabled?'启用':'停用'}</span></td><td class="ringtone-admin-actions"><button type="button" class="text-link ringtone-admin-preview" data-ring="preview" data-id="${esc(item.id)}" data-admin-preview><i data-lucide="play"></i>试听</button><button type="button" class="text-link" data-rcol="edit-link" data-id="${esc(item.id)}">编辑</button><button type="button" class="fs-delete" data-rcol="remove" data-id="${esc(item.id)}">解除关联</button></td></tr>`).join('')||'<tr><td colspan="9" class="fs-empty">暂无关联铃声</td></tr>'}</tbody></table></div><p class="energy-count">共 ${list.length} 条</p><p class="fs-annotation" data-annotation-id="ringtone-column">批注：当前栏目关联的铃声展示在对应 Tab 中，按资源排序值从小到大排列。资源、栏目和关联均须启用；解除当前栏目关联不影响其他栏目，不删除铃声资源。播放量非必填。</p>`;
     syncPlayback();refreshAnnotations();
   }
   function associationDialog(){
-    const linked=new Set(column.links.map(link=>link.id));
+    const tab=resourceTab();if(!tab)return;
+    const linked=new Set(tab.links.map(link=>link.id));
     columnDialog.classList.add('energy-associate-dialog');
     columnDialog.innerHTML=`<form id="ringtoneAssociate"><header><h2 id="ringtoneColumnTitle">关联铃声</h2><button type="button" data-rcol="close" aria-label="关闭"><i data-lucide="x"></i></button></header><label>名称或作者<input id="ringtoneAssociateSearch" placeholder="搜索铃声名称或作者" /></label><div class="energy-associate-list ringtone-associate-list">${items.map(item=>`<label data-ringtone-associate-name="${esc(item.name+' '+item.author)}"><input type="checkbox" name="ringtones" value="${esc(item.id)}" ${linked.has(item.id)?'disabled':''} /><i data-lucide="music-2"></i><span>${esc(item.name)}<small>${esc(item.author)} · ${linked.has(item.id)?'已关联':item.enabled?'启用':'停用'}</small></span></label>`).join('')||'<p class="fs-empty">暂无可关联铃声</p>'}</div><p id="ringtoneColumnError" class="fs-annotation" role="alert"></p><footer><button type="submit" class="primary">确认关联</button></footer></form>`;
     icons();columnDialog.showModal();
   }
   function editLink(id){
-    const item=items.find(item=>item.id===id),link=column.links.find(link=>link.id===id);if(!item||!link)return;
+    const item=items.find(item=>item.id===id),link=resourceTab()?.links.find(link=>link.id===id);if(!item||!link)return;
     columnDialog.classList.remove('energy-associate-dialog');
     columnDialog.innerHTML=`<form id="ringtoneLinkEdit"><header><h2 id="ringtoneColumnTitle">编辑栏目资源</h2><button type="button" data-rcol="close" aria-label="关闭"><i data-lucide="x"></i></button></header><input type="hidden" name="resource" value="${esc(id)}" /><label>名称<input value="${esc(item.name)}" readonly /></label><label>排序<input name="sort" type="number" min="0" max="999999" step="1" required value="${link.sort}" /></label><label>关联状态<select name="enabled"><option value="true" ${link.enabled?'selected':''}>启用</option><option value="false" ${!link.enabled?'selected':''}>停用</option></select></label><p id="ringtoneColumnError" class="fs-annotation" role="alert"></p><footer><button type="button" class="ghost" data-rcol="close">取消</button><button type="submit" class="primary">保存</button></footer></form>`;
     icons();columnDialog.showModal();
   }
   async function editColumn(){
     await ready;columnDialog.classList.remove('energy-associate-dialog');
-    columnDialog.innerHTML=`<form id="ringtoneColumnEdit"><header><h2 id="ringtoneColumnTitle">编辑栏目</h2><button type="button" data-rcol="close" aria-label="关闭"><i data-lucide="x"></i></button></header><label>栏目名称<input value="铃声提示音" readonly /></label><label>下级资源类型<input value="铃声" readonly /></label><label>排序<input name="sort" type="number" min="0" max="9999" step="1" required value="${column.sort}" /></label><label>状态<select name="enabled"><option value="true" ${column.enabled?'selected':''}>启用</option><option value="false" ${!column.enabled?'selected':''}>停用</option></select></label><p class="fs-annotation">批注：停用后，首页不展示铃声入口。</p><p id="ringtoneColumnError" class="fs-annotation" role="alert"></p><footer><button type="button" class="ghost" data-rcol="close">取消</button><button type="submit" class="primary">保存</button></footer></form>`;
+    columnDialog.innerHTML=`<form id="ringtoneColumnEdit"><header><h2 id="ringtoneColumnTitle">编辑栏目</h2><button type="button" data-rcol="close" aria-label="关闭"><i data-lucide="x"></i></button></header><label>栏目名称<input value="铃声提示音" readonly /></label><label>下级资源类型<input value="栏目" readonly /></label><label>排序<input name="sort" type="number" min="0" max="9999" step="1" required value="${column.sort}" /></label><label>状态<select name="enabled"><option value="true" ${column.enabled?'selected':''}>启用</option><option value="false" ${!column.enabled?'selected':''}>停用</option></select></label><p class="fs-annotation">批注：停用后，首页不展示铃声入口。</p><p id="ringtoneColumnError" class="fs-annotation" role="alert"></p><footer><button type="button" class="ghost" data-rcol="close">取消</button><button type="submit" class="primary">保存</button></footer></form>`;
     icons();columnDialog.showModal();
   }
   async function saveColumn(next){
     await writeState('column',next);column=next;applyColumn();
-    if(resourceScreen.classList.contains('active'))renderResources();
+    if(resourceScreen.classList.contains('active'))renderColumnPage();
   }
   document.addEventListener('click',async event=>{
     const button=event.target.closest('[data-rcol]');if(!button)return;
     const action=button.dataset.rcol,id=button.dataset.id;
     if(action==='root')window.__appColumns.openRoot();
+    if(action==='tabs'){columnLevel='tabs';renderTabColumns();}
+    if(action==='reset-tabs'){tabQuery={name:'',enabled:''};renderTabColumns();}
+    if(action==='new-tab')editTab();
+    if(action==='edit-tab')editTab(id);
+    if(action==='tab-resources')openResources(id);
     if(action==='reset'){resourceQuery={name:'',author:''};renderResources();}
     if(action==='associate')associationDialog();
     if(action==='edit-link')editLink(id);
     if(action==='close'&&!columnSaving)columnDialog.close();
     if(action==='remove'&&confirm('解除这条铃声的栏目关联？铃声资源本身不会被删除。')){
       if(columnSaving)return;columnSaving=true;
-      try{await saveColumn({...column,links:column.links.filter(link=>link.id!==id)});showToast('已解除关联');}
+      try{await saveColumn(withTabLinks(resourceTab().links.filter(link=>link.id!==id)));showToast('已解除关联');}
       catch(_){showToast('保存失败，原关联已保留');}
+      finally{columnSaving=false;}
+    }
+    if(action==='delete-tab'&&confirm('删除此栏目及其关联关系？铃声资源和其他栏目不会被删除。')){
+      if(columnSaving)return;columnSaving=true;
+      try{await saveColumn({...column,tabs:column.tabs.filter(tab=>tab.id!==id)});showToast('栏目已删除');}
+      catch(_){showToast('保存失败，原栏目已保留');}
       finally{columnSaving=false;}
     }
   });
@@ -172,18 +222,29 @@
   });
   document.addEventListener('submit',async event=>{
     const form=event.target;
+    if(form.id==='ringtoneTabSearch'){event.preventDefault();tabQuery=Object.fromEntries(new FormData(form));renderTabColumns();return;}
     if(form.id==='ringtoneResourceSearch'){event.preventDefault();resourceQuery=Object.fromEntries(new FormData(form));renderResources();return;}
-    if(!['ringtoneAssociate','ringtoneLinkEdit','ringtoneColumnEdit'].includes(form.id))return;
+    if(!['ringtoneAssociate','ringtoneLinkEdit','ringtoneColumnEdit','ringtoneTabEdit'].includes(form.id))return;
     event.preventDefault();if(columnSaving)return;
     const data=new FormData(form);let next;
     if(form.id==='ringtoneAssociate'){
-      const ids=data.getAll('ringtones').filter(id=>items.some(item=>item.id===id)&&!column.links.some(link=>link.id===id));
+      const tab=resourceTab();if(!tab)return;
+      const ids=data.getAll('ringtones').filter(id=>items.some(item=>item.id===id)&&!tab.links.some(link=>link.id===id));
       if(!ids.length){form.querySelector('#ringtoneColumnError').textContent='请至少选择一条未关联铃声';return;}
-      const lastSort=Math.max(0,...column.links.map(link=>link.sort));
-      next={...column,links:[...column.links,...ids.map((id,index)=>({id,sort:lastSort+(index+1)*10,enabled:true}))]};
+      const lastSort=Math.max(0,...tab.links.map(link=>link.sort));
+      next=withTabLinks([...tab.links,...ids.map((id,index)=>({id,sort:lastSort+(index+1)*10,enabled:true}))]);
     }else{
       const sort=Number(data.get('sort'));if(!Number.isSafeInteger(sort)||sort<0)return;
-      next=form.id==='ringtoneColumnEdit'?{...column,sort,enabled:data.get('enabled')==='true'}:{...column,links:column.links.map(link=>link.id===data.get('resource')?{...link,sort,enabled:data.get('enabled')==='true'}:link)};
+      if(form.id==='ringtoneColumnEdit')next={...column,sort,enabled:data.get('enabled')==='true'};
+      else if(form.id==='ringtoneTabEdit'){
+        const name=String(data.get('name')).trim(),id=form.dataset.tab;
+        if(!name||column.tabs.some(tab=>tab.id!==id&&tab.name===name)){form.querySelector('#ringtoneColumnError').textContent=name?'栏目名称已存在':'请填写栏目名称';return;}
+        const existing=column.tabs.find(tab=>tab.id===id),tab={...(existing||{id,links:[]}),name,sort,enabled:data.get('enabled')==='true'};
+        next={...column,tabs:existing?column.tabs.map(item=>item.id===id?tab:item):[...column.tabs,tab]};
+      }else{
+        if(!resourceTab())return;
+        next=withTabLinks(resourceTab().links.map(link=>link.id===data.get('resource')?{...link,sort,enabled:data.get('enabled')==='true'}:link));
+      }
     }
     columnSaving=true;form.querySelectorAll('button').forEach(button=>{button.disabled=true;});
     try{await saveColumn(next);columnDialog.close();showToast(form.id==='ringtoneAssociate'?'铃声已关联':'配置已保存');}
@@ -191,7 +252,7 @@
     finally{columnSaving=false;form.querySelectorAll('button').forEach(button=>{button.disabled=false;});}
   });
   columnDialog.addEventListener('cancel',event=>{if(columnSaving)event.preventDefault();});
-  window.__appColumns.register({id:'208900000000000002',name:'铃声提示音',binding:'ringtone',resourceType:'铃声',get enabled(){return column.enabled;},get sort(){return column.sort;},openResources,editColumn});
+  window.__appColumns.register({id:'208900000000000002',name:'铃声提示音',binding:'ringtone',resourceType:'栏目',get enabled(){return column.enabled;},get sort(){return column.sort;},openResources:openTabColumns,editColumn});
   async function openAdmin(){await ready;stop();document.querySelectorAll('.sidebar nav button').forEach(b=>b.classList.toggle('active',b===menu));document.querySelector('.topbar h1').textContent='铃声提示音';document.querySelector('.topbar p').textContent='小组件中台 / 铃声提示音';document.querySelector('.top-actions').hidden=true;setScreen('ringtones');renderAdmin();}
   function renderAdmin(){
     const list=items.filter(r=>r.name.includes(query.name)&&r.author.includes(query.author)&&(!query.enabled||String(r.enabled)===query.enabled));
@@ -213,7 +274,7 @@
     try{await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{test.src='';reject(new Error('音频读取超时，请重新选择'));},8000);test.onloadedmetadata=()=>{clearTimeout(timer);resolve();};test.onerror=()=>{clearTimeout(timer);reject(new Error('浏览器无法播放此音频，请使用 MP3 或 WAV'));};test.src=url;});}
     finally{test.src='';URL.revokeObjectURL(url);}
   }
-  async function persist(next){await writeState('catalog',next);items=next;applyColumn();renderAdmin();if(resourceScreen.classList.contains('active'))renderResources();}
+  async function persist(next){await writeState('catalog',next);items=next;applyColumn();renderAdmin();if(resourceScreen.classList.contains('active'))renderColumnPage();}
   async function changeItem(id,remove){
     const item=items.find(r=>r.id===id);if(!item)return;
     if(remove&&!confirm('删除“'+item.name+'”？删除后 App 不再展示该铃声。'))return;
@@ -226,6 +287,7 @@
     if(!button)return;
     const action=button.dataset.ring,id=button.dataset.id;
     if(action==='open')await openApp();
+    if(action==='tab')selectTab(button.dataset.tab,true);
     if(action==='back'){stop();closeSheet();setAppPage('home');}
     if(action==='search-toggle'){const form=app.querySelector('.ringtone-app-search');form.hidden=!form.hidden;if(!form.hidden)form.querySelector('input').focus();else if(search){search='';form.querySelector('input').value='';renderAppList();}}
     if(action==='search-clear'){search='';app.querySelector('input[type="search"]').value='';renderAppList();}
@@ -272,6 +334,11 @@
   });
   overlay.addEventListener('click',event=>{if(event.target===overlay)closeSheet();});
   document.addEventListener('keydown',event=>{
+    if(event.target.matches('[data-ring="tab"]')&&['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){
+      const tabs=availableTabs(),index=tabs.findIndex(tab=>tab.id===activeTabId);
+      const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+      event.preventDefault();if(tabs[next])selectTab(tabs[next].id,true);
+    }
     if(overlay.hidden)return;
     if(event.key==='Escape'){event.preventDefault();closeSheet();}
     if(event.key==='Tab'){

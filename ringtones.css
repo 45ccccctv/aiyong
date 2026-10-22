@@ -17,6 +17,10 @@
 .ringtone-app-search input { width:100%;min-width:0;padding:0;border:0;background:transparent;font-size:12px;outline:none; }
 .ringtone-app-search button { display:grid;place-items:center;width:20px;height:20px;padding:2px;background:transparent;color:#999; }
 .ringtone-app-search button svg { width:14px;height:14px; }
+.ringtone-categories { display:flex;gap:7px;overflow-x:auto;padding:10px 0 9px;scrollbar-width:none; }
+.ringtone-categories button { flex-shrink:0;min-height:27px;padding:5px 11px;border-radius:999px;background:#f5f5f5;color:#444;font-size:11px;line-height:1.4;white-space:nowrap; }
+.ringtone-categories button.active { background:#fff3e9;color:#ed801f; }
+.ringtone-categories button:focus-visible { outline:2px solid #edb681;outline-offset:-2px; }
 .ringtone-row { display:grid;grid-template-columns:minmax(0,1fr) 66px;gap:12px;align-items:center;min-height:77px;padding:9px 0; }
 .ringtone-preview { display:grid;gap:7px;min-width:0;padding:7px 0;background:transparent;text-align:left;color:#333; }
 .ringtone-title-line { display:flex;align-items:center;gap:6px;min-width:0; }
@@ -56,6 +60,7 @@
 .ringtone-admin-actions { white-space:nowrap; }
 .ringtone-admin-actions button { margin-right:7px; }
 .ringtone-resource-table { min-width:1000px; }
+.ringtone-tab-table { min-width:850px; }
 .ringtone-associate-list>label>svg { width:24px;height:24px;color:#e7994b;flex-shrink:0; }
 .ringtone-associate-list>label[hidden] { display:none; }
 .ringtone-admin-dialog { width:min(680px,calc(100vw - 32px));max-height:calc(100vh - 48px);padding:0;border:0;border-radius:8px;color:#233044;box-shadow:0 18px 65px #0003; }
