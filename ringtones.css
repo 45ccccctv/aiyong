@@ -1,0 +1,85 @@
+.current-tools.has-ringtones { grid-template-columns:repeat(5,minmax(0,1fr));gap:2px; }
+.current-tools [hidden] { display:none; }
+.current-tools .ringtone-home-icon { display:grid;place-items:center;width:36px;height:35px;border-radius:8px;background:#fff0e2; }
+.current-tools .ringtone-home-icon svg { width:25px;height:25px;margin:0;color:#f5993d; }
+.phone-shell:has(.ringtone-page.active) { background:#fff; }
+.phone-shell:has(.ringtone-page.active) .app-tabbar { display:none; }
+.phone-shell:has(.ringtone-page.active) .app-phone { height:calc(100% - 36px);padding-top:0; }
+.ringtone-page { background:#fff;color:#333;padding-bottom:18px; }
+.ringtone-page.has-player { padding-bottom:82px; }
+.ringtone-app-head { display:grid;grid-template-columns:28px minmax(0,1fr) 28px;align-items:center;gap:8px;min-height:47px; }
+.ringtone-app-head h2 { font-size:17px;font-weight:600;text-align:center;margin:0; }
+.ringtone-app-head button { display:grid;place-items:center;width:28px;height:30px;padding:4px;background:transparent;color:#333; }
+.ringtone-app-head svg { width:20px;height:20px; }
+.ringtone-app-search { display:flex;align-items:center;gap:6px;padding:7px 9px;margin:4px 0 10px;background:#f5f5f6;border-radius:6px; }
+.ringtone-app-search[hidden] { display:none; }
+.ringtone-app-search>svg { width:15px;height:15px;flex-shrink:0;color:#888; }
+.ringtone-app-search input { width:100%;min-width:0;padding:0;border:0;background:transparent;font-size:12px;outline:none; }
+.ringtone-app-search button { display:grid;place-items:center;width:20px;height:20px;padding:2px;background:transparent;color:#999; }
+.ringtone-app-search button svg { width:14px;height:14px; }
+.ringtone-row { display:grid;grid-template-columns:minmax(0,1fr) 66px;gap:12px;align-items:center;min-height:77px;padding:9px 0; }
+.ringtone-preview { display:grid;gap:7px;min-width:0;padding:7px 0;background:transparent;text-align:left;color:#333; }
+.ringtone-title-line { display:flex;align-items:center;gap:6px;min-width:0; }
+.ringtone-title-line>b { font-size:14px;font-weight:500;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.ringtone-count { display:inline-flex;align-items:center;gap:2px;flex-shrink:0;max-width:65px;padding:1px 2px;background:#fff2e8;color:#f4862c;font-size:8px;line-height:1.2;white-space:nowrap; }
+.ringtone-count svg { width:7px;height:7px;fill:currentColor;stroke-width:0; }
+.ringtone-subtitle { display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;line-height:1.4;color:#989898; }
+.ringtone-preview.is-playing b { color:#e67e24; }
+.ringtone-set { width:66px;min-height:27px;padding:6px 7px;background:#ff882d;border-radius:999px;color:#fff;font-size:10px;white-space:nowrap; }
+.ringtone-empty { display:grid;justify-items:center;gap:8px;padding:65px 12px;color:#b5acb8;font-size:13px; }
+.ringtone-empty>svg { width:30px;height:30px; }
+.ringtone-player { position:absolute;z-index:6;bottom:10px;left:12px;right:12px;display:flex;align-items:center;gap:8px;min-height:56px;padding:9px 10px;border:1px solid #ffe2c7;background:#fff9f2;border-radius:8px;box-shadow:0 2px 12px #53381712; }
+.ringtone-player[hidden],.ringtone-overlay[hidden] { display:none; }
+.ringtone-player-icon { display:grid;place-items:center;flex-shrink:0;width:28px;height:30px;color:#f28a37; }
+.ringtone-player-icon svg { width:24px;height:24px; }
+.ringtone-player>div { display:grid;min-width:0;gap:4px;flex:1; }
+.ringtone-player b { font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.ringtone-player small { font-size:9px;color:#a29a92; }
+.ringtone-player>button { display:grid;place-items:center;flex-shrink:0;width:25px;height:28px;padding:4px;background:transparent;color:#d87d34; }
+.ringtone-player>button svg { width:17px;height:17px; }
+.ringtone-overlay { position:absolute;inset:0;z-index:12;display:grid;place-items:center;padding:32px 15px 16px;background:#0005; }
+.ringtone-sheet { display:flex;flex-direction:column;width:100%;max-height:100%;overflow-y:auto;padding:15px 17px 10px;background:#fff;border-radius:18px;box-shadow:0 6px 32px #0002;scrollbar-width:thin; }
+.ringtone-sheet h3 { margin:10px 0 19px;text-align:center;font-size:16px;font-weight:600;overflow-wrap:anywhere; }
+.ringtone-targets { display:grid; }
+.ringtone-targets>button,.ringtone-targets>a { display:block;min-height:45px;padding:13px 8px;text-align:left;background:transparent;color:#222;font-size:14px;line-height:1.4;text-decoration:none; }
+.ringtone-targets>button:focus-visible,.ringtone-targets>a:focus-visible { outline:2px solid #ffc58c;outline-offset:-2px;border-radius:5px; }
+.ringtone-sheet-cancel { min-height:44px;margin-top:13px;padding:11px 6px;background:transparent;color:#f28129;font-size:14px; }
+.ringtone-admin-heading { display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px; }
+.ringtone-admin-heading h2 { margin:0;font-size:18px; }
+.ringtone-admin-heading button,.ringtone-admin-preview { display:inline-flex;align-items:center;gap:5px; }
+.ringtone-admin-heading button svg { width:16px;height:16px; }
+.ringtone-table { min-width:1100px; }
+.ringtone-table td { font-size:12px; }
+.ringtone-table .ringtone-description-cell { min-width:170px;max-width:250px;white-space:normal;overflow-wrap:anywhere;line-height:1.6; }
+.ringtone-admin-preview { padding:0;white-space:nowrap; }
+.ringtone-admin-preview svg { width:13px;height:13px; }
+.ringtone-admin-actions { white-space:nowrap; }
+.ringtone-admin-actions button { margin-right:7px; }
+.ringtone-resource-table { min-width:1000px; }
+.ringtone-associate-list>label>svg { width:24px;height:24px;color:#e7994b;flex-shrink:0; }
+.ringtone-associate-list>label[hidden] { display:none; }
+.ringtone-admin-dialog { width:min(680px,calc(100vw - 32px));max-height:calc(100vh - 48px);padding:0;border:0;border-radius:8px;color:#233044;box-shadow:0 18px 65px #0003; }
+.ringtone-admin-dialog::backdrop { background:#0006; }
+.ringtone-admin-dialog header { display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 22px;border-bottom:1px solid #e7eaf0; }
+.ringtone-admin-dialog h2 { font-size:17px;margin:0; }
+.ringtone-admin-dialog header button { display:grid;place-items:center;width:27px;height:27px;padding:5px;background:transparent;color:#94a0b1; }
+.ringtone-admin-dialog header svg { width:17px;height:17px; }
+.ringtone-edit-body { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 18px;padding:24px 22px; }
+.ringtone-edit-body label { display:block;font-size:13px;color:#738097; }
+.ringtone-edit-body em { font-style:normal;color:#ef5867;margin-right:4px; }
+.ringtone-edit-body input:not([type="file"]),.ringtone-edit-body textarea,.ringtone-edit-body select { display:block;width:100%;min-width:0;min-height:38px;margin-top:9px;padding:9px 11px;border:1px solid #dde4ef;border-radius:6px;background:#fff;color:#233044;font:inherit;font-size:13px; }
+.ringtone-edit-body textarea { resize:vertical;min-height:82px; }
+.ringtone-form-wide { grid-column:1/-1; }
+.ringtone-edit-body small { display:block;font-size:11px;line-height:1.6;margin-top:8px;color:#8b97aa; }
+.ringtone-edit-body small.fs-annotation { color:#dc2626; }
+.ringtone-upload-field>.ringtone-upload { display:inline-flex;position:relative;align-items:center;gap:6px;margin-top:10px;padding:9px 12px;border:1px solid #d9e4ff;border-radius:6px;background:#f1f5ff;color:#3f6af5;cursor:pointer; }
+.ringtone-upload svg { width:15px;height:15px; }
+.ringtone-upload input { position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer; }
+.ringtone-file-name { margin:9px 0 0;font-size:12px;overflow-wrap:anywhere;color:#556579; }
+.ringtone-edit-error { margin:0;font-size:12px;color:#d93645; }
+.ringtone-admin-dialog footer { display:flex;justify-content:flex-end;gap:10px;border-top:1px solid #e7eaf0;padding:15px 22px; }
+@media(max-width:600px) {
+  .ringtone-edit-body { grid-template-columns:minmax(0,1fr);gap:16px;padding:18px 16px; }
+  .ringtone-admin-dialog header { padding:16px; }
+  .ringtone-row { gap:7px; }
+}

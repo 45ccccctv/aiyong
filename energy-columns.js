@@ -50,6 +50,12 @@
   let level='root',query={id:'',name:'',status:''},resourceQuery={resourceId:'',tableId:'',name:''};
   const selectedResources=new Set();
   const previousColumns=[['我的',''],['动态壁纸','dynamic_wallpaper'],['静态壁纸','static_wallpaper'],['主题','theme_template'],['首页顶部banner','wallpaper_top_banner'],['首页顶部金刚区','wallpaper_top_category'],['开通页资源','open_page_resources'],['小组件',''],['挂件壁纸','hanging_wallpaper']];
+  const extraColumns=new Map();
+  window.__appColumns={
+    register:column=>{extraColumns.set(column.id,column);if(screen.classList.contains('active')&&level==='root')render();},
+    refresh:()=>{if(screen.classList.contains('active')&&level==='root')render();},
+    openRoot:()=>{level='root';query={id:'',name:'',status:''};open();}
+  };
   const status=enabled=>`<span class="${enabled?'fs-live':'energy-off'}">${enabled?'启用':'停用'}</span>`;
   function applyApp(){
     const enabled=energyEnabled();document.querySelector('.phone-shell').classList.toggle('energy-disabled',!enabled);document.querySelector('[data-current-tab="fengshui"]').hidden=!enabled;
@@ -65,9 +71,9 @@
   function render(){
     const header=`<div class="energy-crumb">首页 / <button class="text-link" data-ec="root">爱用小组件</button>${level==='resources'?'<span>/</span><span>能量组件</span>':''}</div>`;
     if(level==='resources'){renderResources(header);return;}
-    const all=[...previousColumns.map(([name,binding],i)=>({id:'2088730000000000'+i,name,binding,sort:i*10,enabled:true})),{id:'208900000000000001',name:'能量组件',binding:'energy_widget',sort:state.sort,enabled:state.enabled,energy:true}];
+    const all=[...previousColumns.map(([name,binding],i)=>({id:'2088730000000000'+i,name,binding,sort:i*10,enabled:true})),{id:'208900000000000001',name:'能量组件',binding:'energy_widget',sort:state.sort,enabled:state.enabled,energy:true},...[...extraColumns.values()].map(column=>({...column,external:true}))];
     const rows=all.filter(r=>r.id.includes(query.id)&&r.name.includes(query.name)&&(!query.status||String(r.enabled)===query.status));
-    screen.innerHTML=`${header}<div class="fs-admin-heading"><h2>App 栏目</h2></div><form id="energyColumnSearch" class="energy-search"><label>栏目 ID<input name="id" value="${esc(query.id)}" placeholder="请输入栏目 ID" /></label><label>栏目名称<input name="name" value="${esc(query.name)}" placeholder="请输入栏目名称" /></label><label>状态<select name="status"><option value="">全部</option><option value="true" ${query.status==='true'?'selected':''}>启用</option><option value="false" ${query.status==='false'?'selected':''}>停用</option></select></label><button class="primary" type="submit"><i data-lucide="search"></i>查询</button><button class="ghost" type="button" data-ec="reset"><i data-lucide="rotate-ccw"></i>重置</button></form><div class="fs-table-wrap"><table class="fs-table energy-column-table"><thead><tr>${['序号','栏目 ID','应用编码','栏目名称','最小版本号','与前端约定参数','封面图','背景图','下级资源类型','排序','状态','操作'].map(t=>`<th>${t}</th>`).join('')}</tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.id}</td><td>爱用小组件</td><td><b>${r.name}</b></td><td>—</td><td>${r.binding}</td><td>无封面</td><td>无图片</td><td>${r.energy?'桌面组件':'栏目'}</td><td>${r.sort}</td><td>${status(r.enabled)}</td><td>${r.energy?'<button class="text-link" data-ec="edit" data-id="energy">编辑</button><button class="text-link" data-ec="next" data-id="energy">下级</button>':'—'}</td></tr>`).join('')||'<tr><td colspan="12" class="fs-empty">暂无匹配栏目</td></tr>'}</tbody></table></div><p class="energy-count">共 ${rows.length} 条</p><p class="fs-annotation">批注：能量组件栏目直接关联桌面组件（金、山、水等），无中间分类栏目。总开关为展示且栏目启用时显示 App 能量入口。</p>`;
+    screen.innerHTML=`${header}<div class="fs-admin-heading"><h2>App 栏目</h2></div><form id="energyColumnSearch" class="energy-search"><label>栏目 ID<input name="id" value="${esc(query.id)}" placeholder="请输入栏目 ID" /></label><label>栏目名称<input name="name" value="${esc(query.name)}" placeholder="请输入栏目名称" /></label><label>状态<select name="status"><option value="">全部</option><option value="true" ${query.status==='true'?'selected':''}>启用</option><option value="false" ${query.status==='false'?'selected':''}>停用</option></select></label><button class="primary" type="submit"><i data-lucide="search"></i>查询</button><button class="ghost" type="button" data-ec="reset"><i data-lucide="rotate-ccw"></i>重置</button></form><div class="fs-table-wrap"><table class="fs-table energy-column-table"><thead><tr>${['序号','栏目 ID','应用编码','栏目名称','最小版本号','与前端约定参数','封面图','背景图','下级资源类型','排序','状态','操作'].map(t=>`<th>${t}</th>`).join('')}</tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.id)}</td><td>爱用小组件</td><td><b>${esc(r.name)}</b></td><td>—</td><td>${esc(r.binding)}</td><td>无封面</td><td>无图片</td><td>${r.energy?'桌面组件':esc(r.resourceType||'栏目')}</td><td>${r.sort}</td><td>${status(r.enabled)}</td><td>${r.energy?'<button class="text-link" data-ec="edit" data-id="energy">编辑</button><button class="text-link" data-ec="next" data-id="energy">下级</button>':r.external?`<button class="text-link" data-ec="external-edit" data-id="${esc(r.id)}">编辑</button><button class="text-link" data-ec="external-next" data-id="${esc(r.id)}">下级</button>`:'—'}</td></tr>`).join('')||'<tr><td colspan="12" class="fs-empty">暂无匹配栏目</td></tr>'}</tbody></table></div><p class="energy-count">共 ${rows.length} 条</p><p class="fs-annotation">批注：能量组件栏目直接关联桌面组件（金、山、水等），无中间分类栏目。总开关为展示且栏目启用时显示 App 能量入口。铃声提示音栏目直接关联铃声资源。</p>`;
     window.lucide?.createIcons();refreshAnnotations();
   }
   function renderResources(header){
@@ -102,6 +108,8 @@
       case 'reset':query={id:'',name:'',status:''};render();break;
       case 'reset-resources':resourceQuery={resourceId:'',tableId:'',name:''};render();break;
       case 'edit':editColumn();break;
+      case 'external-edit':extraColumns.get(b.dataset.id)?.editColumn();break;
+      case 'external-next':extraColumns.get(b.dataset.id)?.openResources();break;
       case 'close':dialog.close();break;
       case 'add-resources':addResources();break;
       case 'edit-resource':editResource(b.dataset.id);break;
