@@ -1,0 +1,41 @@
+.phone-shell:has(.pet-page.active) .app-tabbar{display:none}
+.current-widget-card[data-widget-size="4*4"]{grid-column:span 2}
+.current-widget-card[data-widget-size="4*4"]>img{aspect-ratio:1;object-fit:contain}
+.phone-shell:has(.pet-page.active) .app-phone{height:calc(100% - 36px);padding:0}
+.pet-page.active{display:flex;flex-direction:column;height:100%;overflow:hidden;background:#f7f8fc;color:#57475f}
+.pet-size-label{margin:0;text-align:center;font-size:10px;line-height:16px;color:#a99ab1}
+.pet-stage{display:grid;place-items:center;gap:3px;padding:8px 15px 10px;flex-shrink:0}
+.pet-widget{position:relative;isolation:isolate;width:210px;max-width:100%;aspect-ratio:1;background:#fff;overflow:hidden;border-radius:8px}
+.pet-room-image{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.pet-doll{position:absolute;left:27%;top:45%;width:46%;height:46%;padding:0;border:0;background:none;border-radius:8px;cursor:pointer}
+.pet-doll img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.pet-doll:focus-visible{outline:2px solid #ed8cbd;outline-offset:-2px}
+.pet-current-state{min-height:17px;text-align:center;color:#ac8cb5;font-size:10px;line-height:17px}
+.pet-controls{flex:1;min-height:0;overflow:auto;padding:15px;background:#fff;border-radius:16px 16px 0 0}
+.pet-controls section+section{margin-top:17px}
+.pet-controls h3{margin:0 0 8px;font-size:12px;line-height:1.4;font-weight:500}
+.pet-room-options,.pet-mood-options{display:flex;gap:9px;overflow-x:auto;padding:2px 2px 5px;scrollbar-width:thin}
+.pet-room-options>button,.pet-mood-options>button{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;width:85px;min-width:0;padding:5px;border:1px solid #eee7f1;border-radius:8px;background:#faf9fc;color:#a08ba9;font-size:10px;line-height:1.4}
+.pet-room-options img{width:73px;height:58px;object-fit:contain;background:white;border-radius:4px}
+.pet-room-options span,.pet-mood-options span{width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pet-mood-options>button{width:62px;padding:4px}
+.pet-mood-options img{width:48px;height:48px;object-fit:contain}
+.pet-room-options>button[aria-pressed=true],.pet-mood-options>button[aria-pressed=true]{border-color:#e877b0;background:#fff4fa;color:#d15b9a;box-shadow:0 0 0 1px #e877b0}
+.pet-footer{flex-shrink:0;padding:10px 15px 14px;background:white}
+.pet-footer button{display:block;width:100%;min-height:37px;padding:10px 7px;border-radius:999px;background:#ed3da1;color:white;font-size:12px}
+.pet-footer button:disabled{opacity:.5;cursor:wait}
+.pet-error{margin:10px 0 0;font-size:10px;color:#d62c56;line-height:1.5}
+.pet-unavailable{display:grid;place-items:center;width:236px;aspect-ratio:1;color:#ae9db8;font-size:12px}
+.dc-pet-group+ .dc-pet-group{margin-top:24px}
+.dc-pet-group>header,.dc-pet-item>header>div{display:flex;align-items:center;justify-content:space-between;gap:9px}
+.dc-pet-group>header{margin:0 0 10px;font-size:12px}
+.dc-pet-group>header button{display:flex;align-items:center;gap:4px}
+.dc-pet-item>header{justify-content:space-between}
+.dc-pet-item>header>div{flex-shrink:0}
+.dc-pet-item>header>div>button{width:auto;min-width:26px;padding:3px 5px;white-space:nowrap;font-size:10px;line-height:1.4}
+.dc-pet-group svg{width:13px;height:13px}
+.dc-pet-group .text-link:disabled{color:#c5c5c5;cursor:default}
+.dc-pet-item>.dc-layer-label{display:block;margin-top:10px}
+.dc-pet-item>input{width:100%;min-width:0}
+@media(max-height:760px){.pet-stage{padding:7px 15px 10px;gap:3px}.pet-widget{width:180px}.pet-controls{padding-top:12px}.pet-size-label{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.pet-doll{animation:none}}

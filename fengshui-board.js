@@ -139,7 +139,6 @@
     if(action==='back'){if(phone.querySelector('.app-page.active')?.dataset.appPage==='fs-board-guide'&&guideReturn==='gallery')gallery();else drawBoard();}
     if(action==='gallery'){summaryScroll=0;gallery();}
     if(action==='element'){summaryScroll=phone.querySelector('[data-app-page="fs-gallery"]').scrollTop;picker(null,b.dataset.kind);}
-    if(action==='plans')window.__themeWidgetFlow.browse();
     if(action==='install')startInstall(t.slots.map(([kind],i)=>asWidget(styleFor(t,i),kind)));
     if(action==='guide'){
       guideReturn=phone.querySelector('.app-page.active')?.dataset.appPage==='fs-gallery'?'gallery':'board';
@@ -169,5 +168,5 @@
     else if(active==='fs-board')drawBoard();
     else if(active==='fs-materials'&&pending){if(!visibleKind(pending.kind))drawBoard();else picker(pending.index,pending.kind);}
   });
-  if(location.hash==='#fengshui'||location.hash==='#energy')drawBoard();
+  if(['#fengshui','#energy','#themes'].includes(location.hash))drawBoard();
 })();

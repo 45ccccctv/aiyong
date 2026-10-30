@@ -45,7 +45,7 @@
   }
   window.__energyColumns={enabled:energyEnabled,kinds,visible:kind=>energyEnabled()&&linked().some(r=>r.enabled&&r.kind===kind),resourceIds:kind=>linked().filter(r=>r.enabled&&r.kind===kind).map(r=>r.id),refreshGallery};
   const screen=document.createElement('section');screen.className='screen fs-admin energy-columns';screen.dataset.screen='energy-columns';document.querySelector('.workspace').append(screen);
-  const menu=document.querySelector('.sidebar nav button:nth-child(2)');
+  const menu=document.querySelector('[data-admin-menu="columns"]');
   const dialog=document.createElement('dialog');dialog.className='energy-edit-dialog';dialog.setAttribute('aria-labelledby','energyEditTitle');document.body.append(dialog);
   let level='root',query={id:'',name:'',status:''},resourceQuery={resourceId:'',tableId:'',name:''};
   const selectedResources=new Set();

@@ -1,0 +1,46 @@
+.phone-shell:has(.water-page.active) .app-tabbar{display:none}
+.phone-shell:has(.water-page.active) .app-phone{height:calc(100% - 36px);padding:0}
+.water-page.active{display:flex;flex-direction:column;height:100%;overflow:hidden;background:#f7f8fc;color:#4b3c53}
+.water-stage{display:grid;place-items:center;flex-shrink:0;padding:15px 12px 20px}
+.water-widget{position:relative;width:165px;height:165px;overflow:hidden;border-radius:16px;background-color:var(--water-bg,#fff);background-size:cover;background-position:center;color:var(--water-text,#4a705f)}
+.water-widget.is-transparent{background-color:transparent;outline:1px dashed #e1d9e8;outline-offset:-1px}
+.water-widget.water-wide{width:282px;max-width:100%;height:auto;aspect-ratio:2/1}
+.water-widget.water-wide>img{width:50%}
+.water-widget.water-wide>strong{left:54%;right:10px;top:12px;max-height:44px}
+.water-widget.water-wide .water-widget-count{left:68%;right:auto;top:48%;width:60px}
+.water-widget.water-wide .water-widget-progress{left:73%;right:auto;width:23%}
+.water-widget.water-wide .water-widget-add{left:72%;right:auto;bottom:7px}
+.water-widget>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.water-widget>strong{position:absolute;left:12px;right:12px;top:12px;font-size:10px;line-height:1.5;font-weight:500;overflow-wrap:anywhere;max-height:30px;overflow:hidden}
+.water-widget-count{position:absolute;top:53%;right:11px;width:44px;display:flex;align-items:baseline;justify-content:center;gap:2px;white-space:nowrap;color:inherit}
+.water-widget-count b{font-size:21px;line-height:1.1}
+.water-widget-count small{font-size:11px}
+.water-widget-progress{position:absolute;right:12px;top:70%;width:42px;height:3px;overflow:hidden;background:#dce9e2;border-radius:3px}
+.water-widget-progress i{display:block;height:100%;background:#78b596;max-width:100%}
+.water-widget-add{position:absolute;right:17px;bottom:10px;display:grid;place-items:center;width:30px;height:30px;padding:6px;border-radius:8px;background:#d3e9dc;color:#689d80;border:1px solid #b2d5c1}
+.water-widget-add svg{width:19px;height:19px}
+.water-widget-add:disabled{opacity:.5;cursor:default}
+.water-controls{flex:1;min-height:0;overflow:auto;background:white;border-radius:16px 16px 0 0;padding:10px 15px 20px}
+.water-number-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;font-size:12px}
+.water-number-row>label{min-width:0;flex:1}
+.water-stepper{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.water-stepper button{display:grid;place-items:center;width:29px;height:29px;padding:6px;background:#fbe8f3;color:#db6da9;border-radius:6px}
+.water-stepper button:disabled{background:#f2eff4;color:#cdc2d3;cursor:default}
+.water-stepper svg{width:16px;height:16px}
+.water-stepper input{width:40px;height:29px;padding:3px 1px;text-align:center;font-size:13px;border:1px solid transparent;border-radius:4px;background:white;color:#5d4664;appearance:textfield;-moz-appearance:textfield}
+.water-stepper input::-webkit-inner-spin-button{appearance:none}
+.water-stepper input:focus{outline:1px solid #ecb7d4}
+.water-stepper input[aria-invalid=true]{border-color:#db456c;background:#fff3f5}
+.water-stepper .water-reset{margin-left:3px;background:transparent;color:#b59cbe;width:23px;padding:3px}
+.water-controls .reminder-field{margin-top:15px;margin-bottom:0}
+.water-controls .reminder-field>span{margin-bottom:10px}
+.water-controls .reminder-field>input{height:33px;font-family:inherit}
+.water-background-upload{position:relative;display:flex;align-items:center;gap:5px;overflow:hidden;padding:6px 9px;background:#fbebf5;color:#ce73a7;border-radius:6px;font-size:10px;flex-shrink:0}
+.water-background-upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.water-background-upload svg{width:14px;height:14px}
+.water-error{font-size:10px;line-height:1.5;color:#d34372;margin:5px 0 0}
+.water-footer{padding:10px 15px 14px;background:#fff;flex-shrink:0}
+.water-footer button{display:block;width:100%;min-height:36px;padding:10px 8px;border-radius:999px;background:#ed3da1;color:#fff;font-size:12px}
+.water-footer button:disabled{opacity:.6}
+.water-page button:focus-visible{outline:2px solid #dfa0c3;outline-offset:2px}
+@media(max-height:760px){.water-stage{padding:8px 12px 12px}.water-widget{width:148px;height:148px}.water-widget>strong{top:10px;font-size:9px}.water-number-row{padding:8px 0}.water-controls{padding-top:5px}.water-controls .reminder-field{margin-top:13px}}

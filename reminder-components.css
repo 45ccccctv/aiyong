@@ -1,0 +1,163 @@
+.phone-shell:has(.reminder-page.active) .app-tabbar{display:none}
+.phone-shell:has(.reminder-page.active) .app-phone{height:calc(100% - 36px);padding:0}
+.reminder-page.active{display:flex;flex-direction:column;height:100%;background:#f7f8fc;color:#393440;overflow:hidden}
+.reminder-head{display:grid;grid-template-columns:32px 1fr 32px;align-items:center;min-height:40px;padding:0 12px}
+.reminder-head h2{font-size:15px;text-align:center;margin:0}
+.reminder-page button,.reminder-sheet button{font-family:inherit}
+.reminder-icon-button{display:grid;place-items:center;width:28px;height:28px;padding:5px;background:transparent;color:inherit;flex-shrink:0}
+.reminder-icon-button svg{width:17px;height:17px}
+.reminder-stage{padding:12px 16px 16px;display:grid;place-items:center;flex-shrink:0}
+.reminder-widget{width:100%;max-width:265px;border-radius:14px;background:var(--reminder-bg,#fff);color:var(--reminder-text,#403644);padding:12px;box-shadow:0 3px 15px #49314906}
+.reminder-widget.is-transparent{background:transparent;outline:1px dashed #ddd4e3;box-shadow:none}
+.reminder-widget header{display:flex;align-items:center;gap:6px;padding-bottom:8px;border-bottom:1px solid #eee6f0;min-width:0}
+.reminder-widget header>strong{font-size:13px;flex:1;min-width:0;overflow-wrap:anywhere}
+.reminder-widget svg{width:16px;height:16px;flex-shrink:0}
+.reminder-widget header>svg{color:#e48bad}
+.reminder-widget .reminder-task{display:flex;align-items:center;gap:7px;min-height:32px;border-bottom:1px solid #f4eff6}
+.reminder-task label{display:flex;align-items:center;gap:7px;min-width:0;flex:1;font-size:11px;padding:6px 0}
+.reminder-task input{margin:0;accent-color:#ed4b9f;width:14px;height:14px;flex-shrink:0}
+.reminder-task .task-text{overflow-wrap:anywhere;min-width:0}
+.reminder-task.is-done .task-text{text-decoration:line-through;opacity:.45}
+.reminder-task label>svg{color:#e99040;width:14px;height:14px}
+.reminder-widget footer{display:flex;align-items:center;justify-content:space-between;font-size:9px;color:#a192a8;padding-top:8px;gap:6px}
+.reminder-widget footer button{font-size:9px;background:transparent;color:#cd6d9d;padding:2px}
+.reminder-empty{font-size:11px;color:#ac9caf;text-align:center;padding:18px 0}
+.reminder-habit{max-width:200px;padding:12px}
+.reminder-habit header{border:0;padding-bottom:5px}
+.reminder-flame{display:grid;place-items:center;width:29px;height:29px;background:#fff0db;color:#f19a31;border-radius:8px}
+.reminder-flame svg{width:21px;height:21px}
+.reminder-habit .habit-streak{font-size:10px;color:#aa92a6;margin:2px 0 10px}
+.reminder-habit .habit-streak b{color:#dd7e47;font-size:15px}
+.reminder-week,.reminder-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}
+.reminder-week{font-size:8px;color:#b9a9bd;margin-bottom:5px}
+.reminder-days>span,.reminder-days>button{display:grid;place-items:center;aspect-ratio:1;min-width:0;min-height:0;padding:0;border:0;border-radius:5px;font-size:8px;background:#f3edf6;color:#c4b8ca}
+.reminder-days>.checked{background:#f7b270;color:#fff}
+.reminder-days>.today{outline:1px solid #ec8caa;outline-offset:-1px;color:#d8659b;font-weight:600}
+.reminder-days>.today.checked{color:#fff}
+.reminder-days>span.blank{background:transparent}
+.reminder-days svg{width:11px;height:11px}
+.reminder-controls{flex:1;min-height:0;overflow:auto;padding:14px 15px 18px;background:#fff;border-radius:16px 16px 0 0}
+.reminder-field{display:block;margin:0 0 17px;color:#65526b;font-size:11px}
+.reminder-field[hidden]{display:none}
+.reminder-field>span{display:block;margin-bottom:8px}
+.reminder-field input:not([type=checkbox]):not([type=color]),.reminder-field select{width:100%;min-width:0;height:33px;border:1px solid #e9e1ee;background:#faf9fc;border-radius:6px;padding:6px 8px;font:12px inherit;color:#56455f}
+.reminder-settings-row{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:11px 0;border-bottom:1px solid #f3edf5;background:transparent;color:#58465e;font-size:12px;text-align:left}
+.reminder-settings-row svg{width:15px;height:15px;color:#bda8c5}
+.reminder-settings-row small{color:#ae9bb6;font-size:10px}
+.reminder-colors{display:flex;align-items:center;gap:12px;min-height:28px;padding:2px}
+.reminder-colors button,.reminder-colors input{width:25px;height:25px;border-radius:50%;padding:0;border:1px solid #e9dfea;background:var(--swatch);flex-shrink:0}
+.reminder-colors button[aria-pressed=true]{outline:2px solid #ed85b9;outline-offset:2px}
+.reminder-colors input{overflow:hidden;cursor:pointer}
+.reminder-appearance{margin-top:18px}
+.reminder-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:#65526b;margin:12px 0}
+.reminder-toggle input{accent-color:#ed3da1;width:17px;height:17px;margin:0}
+.reminder-toggle input[role=switch]{appearance:none;width:31px;height:18px;background:#ece8ef;border-radius:999px;position:relative;cursor:pointer;flex-shrink:0}
+.reminder-toggle input[role=switch]::after{content:"";position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:white;box-shadow:0 1px 3px #0001;transition:transform .15s}
+.reminder-toggle input[role=switch]:checked{background:#ed3da1}
+.reminder-toggle input[role=switch]:checked::after{transform:translateX(13px)}
+.reminder-page button:focus-visible,.reminder-sheet button:focus-visible{outline:2px solid #dd8cbc;outline-offset:2px}
+.reminder-footer{padding:10px 15px 14px;background:#fff;flex-shrink:0}
+.reminder-save,.reminder-primary{width:100%;padding:10px;border-radius:999px;background:#ed3da1;color:white;font-size:12px;min-height:36px}
+.reminder-overlay{position:absolute;inset:0;background:#0005;z-index:18;display:flex;align-items:flex-end;padding-top:35px}
+.reminder-overlay[hidden]{display:none}
+.reminder-sheet{width:100%;max-height:100%;display:flex;flex-direction:column;overflow:hidden;background:white;border-radius:16px 16px 0 0;color:#504159}
+.reminder-sheet>header{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;border-bottom:1px solid #f2ebf5}
+.reminder-sheet h3{font-size:14px;margin:0}
+.reminder-sheet-body{overflow:auto;padding:16px;min-height:0}
+.reminder-sheet>footer{display:flex;gap:10px;padding:10px 15px 16px;border-top:1px solid #f1ebf4}
+.reminder-sheet>footer button{flex:1}
+.reminder-cancel{border-radius:999px;padding:10px;background:#f7eff6;color:#bd7ca5;font-size:12px}
+.reminder-icon-picker{display:flex;gap:10px}
+.reminder-icon-picker button{width:34px;height:34px;display:grid;place-items:center;border-radius:6px;background:#f7f1f7;color:#ca85a7;border:1px solid transparent}
+.reminder-icon-picker button[aria-pressed=true]{background:#fff2e4;color:#e58a35;border-color:#efb27a}
+.reminder-icon-picker svg{width:20px;height:20px}
+.reminder-manage-row{display:flex;align-items:center;gap:6px;border-bottom:1px solid #eee6f1;padding:9px 0}
+.reminder-manage-row>svg{width:17px;color:#e49245;flex-shrink:0}
+.reminder-manage-row>span{flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px}
+.reminder-manage-row small{display:block;color:#b09bb8;font-size:9px;margin-top:4px}
+.reminder-sheet-error{font-size:11px;color:#d74972;margin:8px 0}
+.reminder-notice{position:absolute;top:80px;left:12px;right:12px;z-index:30;padding:10px;background:#fff0e6;border:1px solid #f4d5c0;border-radius:6px;display:flex;align-items:center;gap:6px;font-size:11px;color:#ad613d}
+.reminder-notice>span{flex:1;overflow-wrap:anywhere}
+.reminder-notice svg{width:16px;height:16px}
+@media(max-height:760px){.reminder-stage{padding:7px 15px 10px}.reminder-habit{max-width:177px;padding:10px}.reminder-widget:not(.reminder-habit){max-width:245px}.reminder-controls{padding-top:8px}.reminder-field{margin-bottom:12px}.reminder-task label{font-size:10px}}
+.phone-shell:has(.reminder-detail-page.active) .app-tabbar{display:none}
+.phone-shell:has(.reminder-detail-page.active) .app-phone{height:calc(100% - 36px);padding:0}
+.reminder-picture-widget{position:relative;display:block;width:146px;height:146px;max-width:none;padding:12px;text-align:left;overflow:hidden;border:0;flex-shrink:0}
+.reminder-picture-widget>strong{position:absolute;top:12px;left:12px;right:12px;z-index:1;display:block;font-size:10px;line-height:1.4;font-weight:500;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.reminder-picture-widget .habit-streak{position:absolute;top:32px;left:12px;display:flex;align-items:baseline;gap:4px;margin:0;color:inherit}
+.reminder-picture-widget .habit-streak b{font-size:28px;line-height:1.1;color:inherit}
+.reminder-picture-widget .habit-streak span{font-size:9px;color:#aa9cae}
+.habit-illustration{position:absolute;bottom:0;left:12px;right:12px;height:80px;display:flex;justify-content:center;align-items:flex-end;color:#b8adb9;pointer-events:none}
+.habit-illustration>svg:last-child{width:73px;height:73px;stroke-width:1.6;fill:#eee8ee}
+.habit-illustration>svg:first-child:not(:last-child){position:absolute;left:6px;top:12px;width:22px;height:22px;stroke-width:1.5}
+.is-lit .habit-illustration{color:#ec993e}
+.is-lit .habit-illustration>svg:last-child{fill:#ffe1a6}
+.habit-illustration img{display:block;max-width:100%;max-height:100%;object-fit:contain}
+.habit-today-badge{position:absolute;right:10px;top:39px;width:29px;height:29px;padding:4px 0;border:1px solid #f0e5ef;border-radius:50%;text-align:center;font-size:7px;line-height:1.4;color:#b68fa7}
+.habit-detail-entry{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px;background:#f8f4f9;border:1px solid #eee5f0;border-radius:6px;color:#8a708f;font-size:11px;margin-bottom:8px}
+.habit-detail-entry svg{width:14px;height:14px}
+.habit-action-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 3px 15px;border-bottom:1px solid #f2edf5;margin-bottom:15px}
+.habit-action-row>div{flex:1;min-width:0;text-align:center}
+.habit-action-row b{display:block;font-size:23px;color:#514057}
+.habit-action-row small{display:block;font-size:9px;color:#b2a2b8;margin-top:3px}
+.habit-check-button{display:flex;align-items:center;justify-content:center;gap:5px;min-width:100px;padding:9px 10px;font-size:10px;background:#faecf5;color:#d774a6;border:1px solid #f1dbeb;border-radius:999px}
+.habit-check-button svg{width:17px;height:17px}
+.habit-check-button.is-checked{background:#fff2df;color:#c78f47;border-color:#f9e3be}
+.habit-title-field{margin-bottom:3px}
+.habit-upload{position:relative;display:flex;align-items:center;gap:4px;padding:5px 10px;background:#ed4ba2;border-radius:999px;color:#fff;font-size:10px;overflow:hidden;flex-shrink:0}
+.habit-upload svg{width:12px;height:12px}
+.habit-upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.habit-reset-image{display:grid;place-items:center;background:transparent;color:#b09bb7;padding:3px;width:23px;height:23px;flex-shrink:0}
+.habit-reset-image svg{width:14px;height:14px}
+.habit-advanced{border-top:1px solid #f1eaf4;margin-top:17px;padding-top:12px}
+.habit-advanced summary{font-size:11px;color:#8b7695;cursor:pointer;padding-bottom:10px}
+.habit-option-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;font-size:10px;color:#8b7695}
+.habit-segments{display:flex;align-items:center;padding:2px;border-radius:999px;background:#f1edf3;flex-shrink:0}
+.habit-segments button{border-radius:999px;padding:5px 8px;font-size:9px;background:transparent;color:#aa97b2;min-width:61px}
+.habit-segments button[aria-pressed=true]{background:white;color:#bb699b;box-shadow:0 1px 4px #65436b0c}
+.reminder-detail-page.active{display:flex;flex-direction:column;height:100%;overflow:hidden;background:#f7f8fc;color:#59475f}
+.reminder-detail-page .reminder-head{flex-shrink:0}
+.reminder-detail-page h2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.habit-detail-scroll{flex:1;min-height:0;overflow:auto;padding:12px 15px 24px}
+.habit-statistics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;text-align:center;margin:7px 0 20px}
+.habit-statistics b{display:block;font-size:19px;line-height:1.5}
+.habit-statistics span{display:block;font-size:8px;color:#ac96b4;line-height:1.5}
+.habit-calendar{padding:12px;background:white;border-radius:8px}
+.habit-calendar>header{display:flex;align-items:center;justify-content:center;gap:15px;margin-bottom:18px}
+.habit-calendar strong{font-size:12px;font-weight:500}
+.habit-calendar .reminder-week{font-size:10px;margin-bottom:12px}
+.habit-calendar .reminder-days{gap:6px}
+.habit-calendar .reminder-days>span,.habit-calendar .reminder-days>button{font-size:11px;color:#9e85a9;background:#faf6fb}
+.habit-calendar .reminder-days>.blank{background:transparent}
+.habit-calendar .reminder-days>.checked{background:#f3bd88;color:#fff}
+.habit-detail-today{display:flex;align-items:center;gap:7px;background:white;border-bottom:1px solid #f3edf5;padding:13px 10px;font-size:11px;margin-top:10px}
+.habit-detail-today>span{flex:1}
+.habit-detail-today>button:not(.reminder-icon-button){display:flex;align-items:center;gap:5px;font-size:10px;color:#cd7d9e;background:transparent;padding:0}
+.habit-detail-today svg{width:15px;height:15px}
+.habit-year-entry{background:white;padding:13px 10px}
+.habit-year{padding:14px 0}
+.habit-year h3{font-size:12px;font-weight:500;margin:0 0 15px}
+.habit-year>div{display:flex;align-items:center;gap:10px;font-size:10px;margin:12px 0}
+.habit-year>div>span{width:24px}
+.habit-year progress{width:100%;height:6px;accent-color:#eaaa79;flex:1}
+.habit-year small{width:67px;text-align:right;color:#ae97b7;font-size:9px}
+@media(max-height:760px){.reminder-picture-widget{width:132px;height:132px;padding:10px}.habit-illustration{height:69px}.habit-illustration>svg:last-child{height:65px;width:65px}}
+.simple-checkin-widget{background-size:cover;background-position:center;width:156px;height:156px;border-radius:18px;box-shadow:none}
+.simple-checkin-art{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.simple-checkin-widget .habit-streak{top:31px;z-index:1}
+.simple-checkin-widget .habit-streak b{font-size:30px;font-weight:700;line-height:1.1}
+.simple-checkin-widget .habit-streak span{color:inherit;opacity:.65}
+.simple-checkin-trigger{display:block;width:175px;height:28px;margin-top:9px;padding:5px;background:#f0edf5;color:#9b88a6;font-size:10px;border-radius:8px}
+.simple-checkin-trigger:disabled{color:#b4a8ba;background:#f2eff6;cursor:default}
+.habit-title-field{margin-bottom:18px}
+@media(max-height:760px){.simple-checkin-widget{width:146px;height:146px}}
+.dc-checkin-copy{display:grid;grid-template-columns:minmax(0,1fr) 64px;gap:12px;margin-bottom:18px}
+.dc-checkin-copy>label{display:flex;flex-direction:column;gap:7px;min-width:0;font-size:11px;color:#8c7b99}
+.dc-checkin-copy input{width:100%;min-width:0;height:29px;border:1px solid #dcdfe6;border-radius:3px;padding:4px 7px;font-family:inherit;font-size:12px;color:#606266;background:#fff}
+.dc-checkin-copy input[type=color]{padding:2px;width:40px;height:29px}
+.dc-checkin-state{padding:12px 0;margin:0 0 16px;border:0;border-bottom:1px solid #e8e4ed;min-width:0}
+.dc-checkin-state legend{padding:0;color:#4a3c55;font-size:12px;font-weight:600}
+.desktop-component-dialog .dc-checkin-state .dc-state-label{display:block;font-size:11px;font-weight:400;margin:0 0 7px;color:#8c7b99}
+.dc-checkin-state>input{display:block;width:100%;height:28px;margin:0 0 12px;border:1px solid #dcdfe6;border-radius:3px;padding:5px 8px;font-size:12px;background:#fff;color:#605569}
+.dc-state-image{display:flex;align-items:flex-start;gap:10px}
+.dc-state-image .text-link{font-size:11px}

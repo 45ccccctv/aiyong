@@ -1,0 +1,23 @@
+.phone-shell:has(.spark-page.active) .app-tabbar{display:none}
+.phone-shell:has(.spark-page.active) .app-phone{height:calc(100% - 36px);padding:0}
+.spark-page.active{display:flex;flex-direction:column;height:100%;overflow:hidden;background:#f7f8fc;color:#57475f}
+.spark-page [hidden]{display:none!important}
+.spark-page .reminder-head h2{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spark-stage{display:grid;place-items:center;gap:8px;padding:14px 15px 18px;flex-shrink:0}
+.spark-stage>small{font-size:10px;color:#ac98b5;line-height:1.4}
+.spark-widget{position:relative;display:block;width:176px;height:176px;border:0;border-radius:18px;padding:0;overflow:hidden;background:white;cursor:pointer;isolation:isolate;color:var(--spark-text)}
+.spark-widget>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.spark-widget>strong{position:absolute;top:8%;left:8%;right:8%;display:block;text-align:left;font-size:12px;font-weight:500;line-height:1.3;overflow-wrap:anywhere;color:inherit;max-height:40%;overflow:hidden}
+.spark-widget:focus-visible{outline:2px solid #ed8cbd;outline-offset:3px}
+.spark-controls{flex:1;min-height:0;overflow:auto;padding:15px;background:white;border-radius:16px 16px 0 0}
+.spark-state-tabs{display:flex;gap:3px;padding:3px;margin-bottom:17px;border-radius:6px;background:#f4edf5}
+.spark-state-tabs>button{flex:1;min-width:0;height:29px;padding:5px;font-family:inherit;font-size:11px;line-height:1.4;border-radius:4px;background:none;color:#a08ba9}
+.spark-state-tabs>button[aria-selected=true]{background:white;color:#d15b9a;box-shadow:0 1px 3px #6a426515}
+.spark-text-field{margin-bottom:0}
+.spark-text-field input{font-family:inherit!important}
+.spark-error{font-size:10px;color:#d62c56;line-height:1.5;margin:12px 0 0}
+.spark-footer{flex-shrink:0;padding:10px 15px 14px;background:white}
+.spark-footer>button{width:100%;min-height:37px;padding:10px 7px;border-radius:999px;background:#ed3da1;color:white;font-size:12px}
+.spark-footer>button:disabled{opacity:.5;cursor:wait}
+.dc-checkin2-state .dc-checkin-copy{margin-top:12px;margin-bottom:12px}
+@media(max-height:760px){.spark-stage{padding:8px 15px 12px;gap:6px}.spark-widget{width:148px;height:148px}.spark-widget>strong{font-size:10px}.spark-controls{padding-top:12px}}

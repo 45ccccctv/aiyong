@@ -143,7 +143,7 @@
   }
   async function openTabColumns(){
     await ready;stop();columnLevel='tabs';tabQuery={name:'',enabled:''};
-    document.querySelectorAll('.sidebar nav button').forEach(b=>b.classList.toggle('active',b===document.querySelector('.sidebar nav button:nth-child(2)')));
+    document.querySelectorAll('.sidebar nav button').forEach(b=>b.classList.toggle('active',b===document.querySelector('[data-admin-menu="columns"]')));
     document.querySelector('.topbar h1').textContent='栏目管理';document.querySelector('.topbar p').textContent='小组件中台 / 栏目管理';document.querySelector('.top-actions').hidden=true;
     setScreen('ringtone-resources');renderColumnPage();
   }
