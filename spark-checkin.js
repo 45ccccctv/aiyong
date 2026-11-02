@@ -47,7 +47,7 @@
   function renderPreview(){
     if(!active()||!page.querySelector('.spark-stage'))return;
     const item=profile()[editing],stage=page.querySelector('.spark-stage');
-    if(!stage.querySelector('.spark-widget'))stage.innerHTML=widget()+`<small></small>`;
+    if(!stage.querySelector('.spark-widget'))stage.innerHTML='<p class="spark-interaction-hint">点击组件进行打卡</p>'+widget()+`<small></small>`;
     const live=stage.querySelector('.spark-widget');live.dataset.checkinState=editing;live.style.setProperty('--spark-text',item.textColor);live.setAttribute('aria-label',stateFor()==='after'?'今日已打卡':'点击续火花');live.querySelector('img').src=imageSource(item.image);live.querySelector('img').alt=editing==='before'?'打卡前背景':'打卡后背景';live.querySelector('strong').textContent=item.text;live.querySelector('.spark-total b').textContent=totalDays();stage.querySelector('small').textContent='小号 2×2 · '+(editing==='before'?'打卡前':'打卡后');
     const text=page.querySelector('.spark-widget>strong'),available=page.querySelector('.spark-widget').clientHeight*.2-3;
     text.style.maxHeight=available+'px';let font=innerHeight<=760?10:12;while(font>6&&text.scrollHeight>available){font-=.5;text.style.fontSize=font+'px';}

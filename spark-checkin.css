@@ -5,6 +5,7 @@
 .spark-page button svg{pointer-events:none}
 .spark-page .reminder-head h2{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .spark-stage{display:grid;place-items:center;gap:8px;padding:14px 15px 18px;flex-shrink:0}
+.spark-interaction-hint{margin:0;color:#999;font-size:10px;line-height:14px;text-align:center}
 .spark-stage>small{font-size:10px;color:#ac98b5;line-height:1.4}
 .spark-widget{position:relative;display:block;width:176px;height:176px;border:0;border-radius:18px;padding:0;overflow:hidden;background:white;cursor:pointer;isolation:isolate;color:var(--spark-text)}
 .spark-widget>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}

@@ -40,7 +40,7 @@
     fit(room,0,0,600,600);fit(doll,162,270,276,276);return c.toDataURL('image/png');
   }
   function renderPreview(){
-    if(!active())return;const p=profile();page.querySelector('.pet-stage').innerHTML=widget()+`<div class="pet-current-state" aria-live="polite">${esc(p.mood?.name||'暂无状态')}</div>`;
+    if(!active())return;const p=profile();page.querySelector('.pet-stage').innerHTML='<p class="pet-interaction-hint">点击组件切换心情</p>'+widget()+`<div class="pet-current-state" aria-live="polite">${esc(p.mood?.name||'暂无状态')}</div>`;
     page.querySelectorAll('[data-pet="room"]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===p.room?.id));
     page.querySelectorAll('[data-pet="mood"]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===p.mood?.id));
     page.querySelector('[data-pet="save"]').disabled=!ready();

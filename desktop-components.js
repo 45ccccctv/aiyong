@@ -60,6 +60,7 @@
       const item={...c,kind,functionType:impl==='energy'?'能量组件':typeFor(kind),size:kind==='pet'?'4*4':kind==='checkin2'?'2*2':c.size,sizes:kind==='pet'?['4*4']:['todo','water'].includes(kind)?['2*2','2*4']:[kind==='checkin2'?'2*2':c.size||'2*2']};
       if(impl==='pet')item.pet=c.pet||{rooms:[],states:[]};
       if(impl==='todo')item.todo={...c.todo,items:Array.from({length:4},(_,i)=>c.todo?.items?.[i]??utilities[1].todo.items[i])};
+      if(impl==='salary')item.salaryAfter={background:'',decoration:'./assets/salary-after.png',copy:'下班啦~',textColor:'#444444',...c.salaryAfter};
       if(impl==='monthly'){
         const m=c.monthly||{};
         item.monthly={copy:m.copy||'每天锻炼一小时',background:m.background||'',icons:Array.isArray(m.icons)?m.icons:[{id:'default',name:'小旗',image:m.iconImage||defaultMonthIcon(m)},{id:'heart',name:'爱心',image:defaultMonthIcon({icon:'heart',iconColor:'#dc7fa5'})},{id:'star',name:'星星',image:defaultMonthIcon({icon:'star',iconColor:'#d6a447'})}]};
@@ -93,7 +94,7 @@
   function render(){
     const rows=components.filter(c=>c.name.includes(query.name)&&c.code.includes(query.code)&&(!query.enabled||String(c.enabled)===query.enabled));
     screen.innerHTML=`<form id="desktopComponentSearch" class="energy-search"><label>组件名称<input name="name" placeholder="请输入组件名称" value="${esc(query.name)}" /></label><label>与客户端约定的组件参数码<input name="code" placeholder="请输入组件参数码" value="${esc(query.code)}" /></label><label>有效状态<select name="enabled"><option value="">全部</option><option value="true" ${query.enabled==='true'?'selected':''}>有效</option><option value="false" ${query.enabled==='false'?'selected':''}>无效</option></select></label><button class="primary" type="submit"><i data-lucide="search"></i>查询</button><button class="ghost" type="button" data-dc="reset"><i data-lucide="rotate-ccw"></i>重置</button></form><div class="desktop-component-toolbar"><button class="primary" type="button" data-dc="new"><i data-lucide="plus"></i>新增</button></div><div class="fs-table-wrap"><table class="fs-table desktop-component-table"><thead><tr>${['序号','组件名称','资源标签','与客户端约定的组件参数码','功能类型','背景图数量','封面图片','角标图片','有效状态','可用人群','更新人','修改时间','操作'].map(t=>`<th>${t}</th>`).join('')}</tr></thead><tbody>${rows.map((c,i)=>`<tr data-component-id="${esc(c.id)}"><td>${i+1}</td><td><b>${esc(c.name)}</b></td><td>${esc(c.tags)||'—'}</td><td>${esc(c.code)||'—'}</td><td>${esc(c.functionType)}</td><td>${c.backgrounds.length} 张</td><td>${c.cover?`<img src="${esc(c.cover)}" alt="${esc(c.name)}封面" />`:'无图片'}</td><td>${c.badge?`<img src="${esc(c.badge)}" alt="角标" />`:'无图片'}</td><td><span class="${c.enabled?'fs-live':'energy-off'}">${c.enabled?'有效':'无效'}</span></td><td>${esc(c.audience)}</td><td>${esc(c.updatedBy)}</td><td>${esc(c.updated)}</td><td><button class="text-link" data-dc="edit" data-id="${esc(c.id)}">编辑</button><button class="fs-delete" data-dc="delete" data-id="${esc(c.id)}">删除</button></td></tr>`).join('')||'<tr><td colspan="13" class="fs-empty">暂无组件</td></tr>'}</tbody></table></div><p class="energy-count">共 ${rows.length} 条数据</p><p class="fs-annotation">批注：金、山、水等各作为一个能量组件创建，同一组件下可配置多张背景图。能量组件栏目直接关联桌面组件，不再增加分类栏目层级。</p>`;
-    for(const c of rows)if(c.functionType!=='能量组件'){const kind=implementation(c),urls=kind==='checkin2'?Object.values(c.checkin2||{}).map(s=>s.image):kind==='pet'?[...(c.pet?.rooms||[]),...(c.pet?.states||[])].map(i=>i.image):kind==='checkin'?Object.values(c.checkinStates||{}).flatMap(s=>[s.image,s.background]):kind==='monthly'?[c.monthly?.background,...(c.monthly?.icons||[]).map(i=>i.image)]:kind==='water'?[c.water?.backgroundImage,...Object.values(c.water?.states||{}).map(i=>i.image)]:kind==='clock'?[c.clock?.background,c.clock?.decoration]:kind==='todo'?[c.todo?.background,c.todo?.decoration]:[c.salaryBackground,...c.backgrounds.map(b=>b.url)];screen.querySelector(`[data-component-id="${c.id}"] td:nth-child(6)`).textContent=urls.filter(Boolean).length+' 张';}
+    for(const c of rows)if(c.functionType!=='能量组件'){const kind=implementation(c),urls=kind==='checkin2'?Object.values(c.checkin2||{}).map(s=>s.image):kind==='pet'?[...(c.pet?.rooms||[]),...(c.pet?.states||[])].map(i=>i.image):kind==='checkin'?Object.values(c.checkinStates||{}).flatMap(s=>[s.image,s.background]):kind==='monthly'?[c.monthly?.background,...(c.monthly?.icons||[]).map(i=>i.image)]:kind==='water'?[c.water?.backgroundImage,...Object.values(c.water?.states||{}).map(i=>i.image)]:kind==='clock'?[c.clock?.background,c.clock?.decoration]:kind==='todo'?[c.todo?.background,c.todo?.decoration]:[c.salaryBackground,...c.backgrounds.map(b=>b.url),c.salaryAfter?.background,c.salaryAfter?.decoration];screen.querySelector(`[data-component-id="${c.id}"] td:nth-child(6)`).textContent=urls.filter(Boolean).length+' 张';}
     window.lucide?.createIcons();refreshAnnotations();
   }
   function edit(id){
@@ -117,6 +118,8 @@
   function setLayer(type,value){
     if(type==='salary-background')draft.salaryBackground=value;
     else if(type==='salary-decoration'){draft.backgrounds=value?[{id:'salary-decoration',code:'badge_front',name:'装饰层',url:value,vip:false}]:[];}
+    else if(type==='salary-after-background')draft.salaryAfter.background=value;
+    else if(type==='salary-after-decoration')draft.salaryAfter.decoration=value;
     else if(type==='water-before'||type==='water-after'){draft.water.states[type.slice(6)].image=value;if(type==='water-before')draft.water.image=value;}
     else if(type.startsWith('checkin2-'))draft.checkin2[type.slice(9)].image=value;
     else{const [kind,field]=type.split('-');draft[kind][field]=value;}
@@ -172,9 +175,10 @@
       finishLayers();window.lucide?.createIcons();return;
     }
     if(salary){
+      draft.salaryAfter??={background:'',decoration:'./assets/salary-after.png',copy:'下班啦~',textColor:'#444444'};
       dialog.querySelector('.dc-material-row>label').textContent='薪资组件素材：';dialog.querySelector('#dcCode').required=true;dialog.querySelector('label[for="dcCode"]').innerHTML='<em>*</em>与客户端约定的组件参数码：';
-      dialog.querySelector('#dcBackgroundImages').innerHTML=materialGroup('salary-background',draft.salaryBackground,'background','背景图')+materialGroup('salary-decoration',draft.backgrounds[0]?.url,'badge_front','装饰层',true);
-      dialog.querySelector('.dc-form-note').textContent='批注：背景图在底层，牛马等图案上传至装饰层。客户端默认月薪 5000 元、09:00 上班、18:00 下班，薪资和上下班时间无需中台配置，用户可在 App 内修改。每10分钟自动刷新薪资，仍可点击刷新。用户可选择保密展示，预览与桌面金额同步隐藏。';finishLayers();window.lucide?.createIcons();return;
+      dialog.querySelector('#dcBackgroundImages').innerHTML='<fieldset class="dc-checkin-state"><legend>下班前样式</legend>'+materialGroup('salary-background',draft.salaryBackground,'background','背景图')+materialGroup('salary-decoration',draft.backgrounds[0]?.url,'badge_front','装饰层',true)+'</fieldset><fieldset class="dc-checkin-state"><legend>下班后样式</legend><div class="dc-checkin-copy"><label><span><em>*</em>下班提示文案</span><input data-dc-salary-after="copy" required maxlength="20" value="'+esc(draft.salaryAfter.copy)+'" /></label><label><span>文字颜色</span><input type="color" data-dc-salary-after="textColor" value="'+esc(draft.salaryAfter.textColor)+'" /></label></div>'+materialGroup('salary-after-background',draft.salaryAfter.background,'background','下班后背景图')+materialGroup('salary-after-decoration',draft.salaryAfter.decoration,'badge_front','下班后装饰层',true)+'</fieldset>';
+      dialog.querySelector('.dc-form-note').textContent='批注：下班前后分别配置背景图和装饰层。到用户设置的下班时间自动切换为下班后样式，倒计时替换为下班提示文案；下一班次开始时恢复。客户端默认月薪 5000 元、09:00 上班、18:00 下班，薪资和上下班时间无需中台配置。每10分钟自动刷新薪资，也可点击刷新；切换班次状态时同步刷新。用户的个人背景、文字颜色及保密设置优先。';finishLayers();window.lucide?.createIcons();return;
     }
     dialog.querySelector('.dc-material-row>label').textContent='能量组件素材：';
     dialog.querySelector('#dcCode').required=false;
@@ -253,6 +257,7 @@
   document.addEventListener('input',e=>{if(!draft)return;if(e.target.dataset.dcTodoItem!==undefined)draft.todo.items[Number(e.target.dataset.dcTodoItem)]=e.target.value;if(e.target.dataset.dcWater){const f=e.target.dataset.dcWater;draft.water[f]=['goal','done'].includes(f)?Number(e.target.value):e.target.value;}});
   document.addEventListener('input',e=>{const group=e.target.dataset.dcPetGroup;if(draft&&group){const item=draft.pet[group]?.find(i=>i.id===e.target.dataset.id);if(item)item.name=e.target.value;}});
   document.addEventListener('input',e=>{if(draft&&e.target.dataset.dcCheckin2State)draft.checkin2[e.target.dataset.dcCheckin2State][e.target.dataset.field]=e.target.value;});
+  document.addEventListener('input',e=>{if(draft&&e.target.dataset.dcSalaryAfter)draft.salaryAfter[e.target.dataset.dcSalaryAfter]=e.target.value;});
   document.addEventListener('input',e=>{if(!draft)return;if(e.target.dataset.dcMonthIconName){const item=draft.monthly.icons.find(i=>i.id===e.target.dataset.dcMonthIconName);if(item)item.name=e.target.value;}if(e.target.dataset.dcWaterState){const part=e.target.dataset.dcWaterState;draft.water.states[part].copy=e.target.value;if(part==='before')draft.water.copy=e.target.value;}});
   document.addEventListener('change',e=>{if(e.target.id!=='dcCode'||!draft)return;draft.code=e.target.value.trim();const kind=parameterKinds[draft.code];if(kind){draft.kind=kind;draft.functionType=typeFor(kind);dialog.querySelector('#dcType').value=draft.functionType;drawBackgrounds();}});
   document.addEventListener('submit',e=>{
@@ -277,6 +282,8 @@
     const functionType=d.get('functionType');if(typeFor(selectedKind)!==functionType){showError('功能类型与组件参数码不匹配');return;}
     if((salary||checkin2||monthly||clock||todo||water||pet)&&!code){showError('请填写与客户端约定的组件参数码');return;}
     if(salary&&draft.backgrounds.length!==1){showError('薪资组件需要配置一张装饰层图片');return;}
+    if(salary&&(!draft.salaryAfter?.decoration||!draft.salaryAfter.copy.trim()||!/^#[0-9a-f]{6}$/i.test(draft.salaryAfter.textColor))){showError('请填写下班提示文案、有效文字颜色并上传下班后装饰层');return;}
+    if(salary)draft.salaryAfter.copy=draft.salaryAfter.copy.trim();
     const kind=checkin2?'checkin2':pet?'pet':water?'water':clock?'clock':todo?'todo':monthly?'monthly':salary?'salary':categories.find(c=>code==='energy_'+c.id||code.startsWith('energy_'+c.id+'_'))?.id||(!['salary','monthly','clock','todo','water','pet','checkin2'].includes(draft.kind)&&draft.kind)||categories.find(c=>c.name===name)?.id||draft.id;
     const item={...draft,name,tags:String(d.get('tags')).trim(),code,functionType,kind,enabled:d.get('enabled')==='true',audience:d.get('audience'),size:checkin2?'2*2':pet?'4*4':todo?'2*4':clock||water?'2*2':draft.size,sizes:checkin2?['2*2']:pet?['4*4']:todo||water?['2*2','2*4']:[draft.size||'2*2'],cover:draft.cover||(checkin2?draft.checkin2.before.image:pet?draft.pet.rooms[0].image:water?draft.water.image:clock?draft.clock.background:todo?'./assets/todo-widget.png':monthly?'./assets/monthly-checkin.png':draft.backgrounds[0].url),updated:stamp(),updatedBy:'运营',backgrounds:checkin2||pet||monthly||clock||todo||water?[]:draft.backgrounds.map(b=>({...b,code:b.code||b.id,name:b.name||b.id}))};
     if(monthly)item.monthly.copy=item.monthly.copy.trim();

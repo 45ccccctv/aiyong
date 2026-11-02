@@ -25,6 +25,8 @@
 .salary-countdown{position:absolute;top:51%;left:28%;width:44%;height:15%;color:var(--salary-color,#444);text-align:center;pointer-events:none}
 .salary-countdown-time{display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:999px;background:#e2e3e4;font-size:10px;font-weight:400;font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap}
 .salary-countdown small{display:block;margin-top:3px;font-size:8px;line-height:1.3;white-space:nowrap}
+.salary-countdown small[hidden]{display:none}
+.salary-countdown.is-after .salary-countdown-time{display:block;align-content:center;padding:0 4px;overflow:hidden;text-overflow:ellipsis}
 .salary-desktop-visual{container-type:size}
 .salary-desktop-face{position:absolute;top:50%;left:50%;width:min(100cqw,100cqh);height:min(100cqw,100cqh);transform:translate(-50%,-50%);container-type:inline-size;pointer-events:none}
 .salary-desktop-face .salary-countdown-time{font-size:6.667cqw}
