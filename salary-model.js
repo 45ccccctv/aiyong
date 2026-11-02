@@ -4,7 +4,7 @@
   else root.SalaryModel=model;
 })(typeof window==='undefined'?globalThis:window,function(){
   'use strict';
-  const defaults=Object.freeze({monthlySalary:5000,start:'09:00',end:'18:00',lunchHours:2,workDays:22,backgroundColor:'#ffffff',backgroundImage:'',textColor:'#444444',transparent:false});
+  const defaults=Object.freeze({monthlySalary:5000,start:'09:00',end:'18:00',lunchHours:2,workDays:22,backgroundColor:'#ffffff',backgroundImage:'',textColor:'#444444',transparent:false,privateDisplay:false});
   function timeMinutes(value){if(!/^\d{2}:\d{2}$/.test(value))return NaN;const [h,m]=value.split(':').map(Number);return h<24&&m<60?h*60+m:NaN;}
   function analyze(config){
     const salary=Number(config.monthlySalary),days=Number(config.workDays),lunch=Number(config.lunchHours),start=timeMinutes(config.start),end=timeMinutes(config.end);
@@ -24,7 +24,14 @@
     const rest=result.lunch*3600000,restStart=(span-rest)/2,restUsed=Math.max(0,Math.min(rest,elapsed-restStart));
     const seconds=Math.max(0,(elapsed-restUsed)/1000),fraction=Math.min(1,seconds/(result.hours*3600));
     const status=now<shiftStart?'未上班':now-shiftStart>=span?'已下班':elapsed>=restStart&&elapsed<restStart+rest?'午休中':'工作中';
-    return {...result,earned:result.daily*fraction,fraction,seconds,status};
+    return {...result,earned:result.daily*fraction,fraction,seconds,status,shiftEnd:shiftStart.getTime()+span};
   }
-  return {defaults,analyze,progress};
+  function countdown(config,date=new Date()){
+    const result=progress(config,date);if(result.error)return result;
+    const seconds=Math.max(0,Math.ceil((result.shiftEnd-new Date(date).getTime())/1000));
+    const hours=Math.floor(seconds/3600),minutes=Math.floor(seconds%3600/60),remainder=seconds%60;
+    const pad=value=>String(value).padStart(2,'0');
+    return {seconds,text:(hours?pad(hours)+':':'')+pad(minutes)+':'+pad(remainder),label:seconds?'距离下班':'已下班'};
+  }
+  return {defaults,analyze,progress,countdown};
 });

@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const root=document.querySelector('.app-phone'),key='aiyong-theme-prototype-v1',removedId='board-reminder-list';
+  const root=document.querySelector('.app-phone'),key='aiyong-theme-prototype-v1',removedIds=new Set(['board-reminder-list','board-reminder-habit']),retired=id=>removedIds.has(id);
   let stored={};try{stored=JSON.parse(localStorage.getItem(key)||'{}')||{};}catch(_){}
   const saved=stored.saved||{},installed=stored.installed||{},edits=stored.edits||{};
   const legacySavedItems=[
@@ -10,11 +10,12 @@
   ];
   const catalog=legacySavedItems.filter(w=>saved[w.id]||installed[w.id]);
   for(const item of Array.isArray(stored.extraCatalog)?stored.extraCatalog:[]){
-    if(!item||item.id===removedId)continue;
+    if(!item||retired(item.id))continue;
     const index=catalog.findIndex(w=>w.id===item.id);if(index<0)catalog.push(item);else catalog[index]=item;
   }
-  const hadRetiredData=Object.hasOwn(stored,'plans')||Boolean(saved[removedId]||installed[removedId]||edits[removedId])||(Array.isArray(stored.extraCatalog)&&stored.extraCatalog.some(w=>w?.id===removedId));
-  delete saved[removedId];delete installed[removedId];delete edits[removedId];
+  const hadRetiredData=Object.hasOwn(stored,'plans')||[...removedIds].some(id=>saved[id]||installed[id]||edits[id])||(Array.isArray(stored.extraCatalog)&&stored.extraCatalog.some(w=>retired(w?.id)));
+  for(const id of removedIds){delete saved[id];delete installed[id];delete edits[id];}
+  localStorage.removeItem('aiyong-reminder-components-v1');
   let queue=[],queueIndex=0,onReturn=null;
   const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const widget=id=>catalog.find(w=>w.id===id);
@@ -59,8 +60,8 @@
     getSaved(){return Object.keys(saved).filter(id=>saved[id]&&widget(id)).map(id=>structuredClone(widget(id)));},
     getInstalled(){return Object.keys(installed).filter(id=>installed[id]&&widget(id)).map(id=>structuredClone(widget(id)));},
     setInstalled(id,value){if(!widget(id))return;installed[id]=!!value;if(value)saved[id]=true;persist();this.refreshMine();},
-    register(items){items.filter(item=>item&&item.id!==removedId).forEach(item=>{const index=catalog.findIndex(w=>w.id===item.id);if(index<0)catalog.push(item);else catalog[index]=item;});},
-    save(items){this.register(items);items.filter(item=>item&&item.id!==removedId).forEach(item=>saved[item.id]=true);persist();this.refreshMine();},
+    register(items){items.filter(item=>item&&!retired(item.id)).forEach(item=>{const index=catalog.findIndex(w=>w.id===item.id);if(index<0)catalog.push(item);else catalog[index]=item;});},
+    save(items){this.register(items);items.filter(item=>item&&!retired(item.id)).forEach(item=>saved[item.id]=true);persist();this.refreshMine();},
     update(id,values){const item=widget(id);if(!item)return false;this.register([{...item,...values,id}]);persist();this.refreshMine();return true;},
     refreshMine(){
       let host=root.querySelector('.fs-mine-energy');if(!host){host=document.createElement('div');host.className='fs-mine-energy fs-saved-list';root.querySelector('[data-app-page="mine"] .size-tabs').after(host);}

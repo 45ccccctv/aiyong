@@ -21,6 +21,7 @@
 .water-widget-add svg{width:19px;height:19px}
 .water-widget-add:disabled{opacity:.5;cursor:default}
 .water-controls{flex:1;min-height:0;overflow:auto;background:white;border-radius:16px 16px 0 0;padding:10px 15px 20px}
+.water-page button svg{pointer-events:none}
 .water-number-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;font-size:12px}
 .water-number-row>label{min-width:0;flex:1}
 .water-stepper{display:flex;align-items:center;gap:4px;flex-shrink:0}

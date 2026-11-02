@@ -4,7 +4,7 @@
   let componentId=components.salaryDefaultId,widgetId='board-salary-calculator';
   const configKey=(id=componentId)=>id===components.salaryDefaultId?key:key+'-'+id;
   const ownWidgetId=id=>id===components.salaryDefaultId?'board-salary-calculator':'board-salary-'+id;
-  const refreshTimes=new Map(),refreshing=new Set();
+  const refreshTimes=new Map(),refreshing=new Set(),refreshInterval=10*60*1000;
   function readTimestamp(id=componentId){try{const value=Number(JSON.parse(localStorage.getItem(configKey(id))||'{}').refreshedAt);return Number.isFinite(value)&&value>0?value:Date.now();}catch(_){return Date.now();}}
   const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const money=(value,digits=2)=>Number(value).toLocaleString('zh-CN',{minimumFractionDigits:digits,maximumFractionDigits:digits});
@@ -13,7 +13,7 @@
   function readConfig(id=componentId){
     let stored={};try{stored=JSON.parse(localStorage.getItem(configKey(id))||'{}');}catch(_){}
     const old=stored.config||{},value=Object.fromEntries(Object.keys(defaults).map(field=>[field,old[field]??defaults[field]]));
-    value.transparent=Boolean(old.transparent??(old.opacity===0));value.backgroundImage=safeImage(Object.hasOwn(old,'backgroundImage')?value.backgroundImage:components.get(id)?.salaryBackground||'');
+    value.privateDisplay=Boolean(old.privateDisplay);value.transparent=Boolean(old.transparent??(old.opacity===0));value.backgroundImage=safeImage(Object.hasOwn(old,'backgroundImage')?value.backgroundImage:components.get(id)?.salaryBackground||'');
     if(!validColor(value.textColor))value.textColor=defaults.textColor;
     if(!validColor(value.backgroundColor))value.backgroundColor=defaults.backgroundColor;
     return model.analyze(value).error?{...defaults}:value;
@@ -37,9 +37,27 @@
     if(!grid)return;
     grid.querySelectorAll('[data-current-widget="薪资计算"]').forEach(el=>el.remove());
     if(filter!=='热门'&&filter!=='薪资计算')return;
-    grid.insertAdjacentHTML('beforeend',components.resources('salary').filter(c=>c.enabled).map(c=>`<button type="button" data-current-widget="薪资计算" data-salary-component="${esc(c.id)}" class="current-widget-card"><img src="${esc(c.image)}" alt="${esc(c.name)}" loading="lazy" /><span>${esc(c.name)}</span></button>`).join(''));
+    grid.insertAdjacentHTML('beforeend',components.resources('salary').filter(c=>c.enabled).map(c=>`<button type="button" data-current-widget="薪资计算" data-salary-component="${esc(c.id)}" class="current-widget-card"><img src="${esc(window.__themeWidgetFlow.get(ownWidgetId(c.id))?.image||c.image)}" alt="${esc(c.name)}" loading="lazy" /><span>${esc(c.name)}</span></button>`).join(''));
   }
   function markDirty(){dirty=true;page.querySelector('.salary-save').textContent='保存到我的组件';}
+  function countdownMarkup(value){const remaining=model.countdown(value);return `<div class="salary-countdown"><span class="salary-countdown-time">${remaining.text}</span><small>${remaining.label}</small></div>`;}
+  function updateCountdown(){
+    if(document.hidden)return;
+    document.querySelectorAll('.salary-countdown').forEach(el=>{
+      const id=el.closest('[data-salary-countdown-component]')?.dataset.salaryCountdownComponent;
+      if(!id&&!active())return;
+      const remaining=model.countdown(id?readConfig(id):draft);
+      el.querySelector('.salary-countdown-time').textContent=remaining.text;el.querySelector('small').textContent=remaining.label;
+    });
+  }
+  function decorateDesktop(root){
+    root.querySelectorAll('[data-desktop-widget^="board-salary-"]').forEach(el=>{
+      const id=el.dataset.desktopWidget==='board-salary-calculator'?components.salaryDefaultId:el.dataset.desktopWidget.slice('board-salary-'.length),value=readConfig(id),visual=el.querySelector('.desktop-widget-visual');
+      visual.classList.add('salary-desktop-visual');visual.insertAdjacentHTML('beforeend',`<div class="salary-desktop-face" data-salary-countdown-component="${esc(id)}" style="--salary-color:${value.textColor}">${countdownMarkup(value)}</div>`);
+      // The desktop timer is live; omit its baked-in copy from the image below it.
+      const image=visual.querySelector('img');snapshot(value,id,undefined,false).then(src=>{if(image.isConnected)image.src=src;}).catch(()=>{});
+    });
+  }
   function updatePreview(){
     const widget=page.querySelector('.salary-live-widget');if(!widget)return;
     const result=model.progress(draft,new Date(refreshedAt)),background=widget.querySelector('.salary-widget-background');
@@ -48,27 +66,30 @@
     background.style.backgroundImage=draft.backgroundImage?`url("${safeImage(draft.backgroundImage)}")`:'';
     background.hidden=draft.transparent;page.querySelector('.salary-stage').classList.toggle('is-transparent',draft.transparent);
     const amount=widget.querySelector('.salary-earned');amount.hidden=false;
-    amount.innerHTML=`<small>今日到手</small><strong>¥${money(result.earned)}</strong>`;
+    amount.innerHTML=`<small>今日到手</small><strong>${draft.privateDisplay?'¥****':'¥'+money(result.earned)}</strong>`;
     const text=amount.querySelector('strong');measure.font='600 25px '+font;
     text.style.fontSize=Math.min(25,25*(widget.clientWidth-20)/Math.max(1,measure.measureText(text.textContent).width))+'px';
-    widget.setAttribute('aria-label','点击更新薪资，今日到手 '+money(result.earned)+' 元');
+    if(!widget.querySelector('.salary-countdown'))widget.querySelector('.salary-widget-content').insertAdjacentHTML('beforeend',countdownMarkup(draft));
+    updateCountdown();
+    widget.setAttribute('aria-label',draft.privateDisplay?'点击更新薪资，金额保密展示':'点击更新薪资，今日到手 '+money(result.earned)+' 元');
   }
   function swatches(field,colors){
     const text=field==='textColor';return WidgetAppearance.swatches({mode:text?'text':'background',field,value:draft[field],colors,image:draft.backgroundImage,action:'data-salary',custom:text?'data-salary-field':'',uploadId:text?'':'salaryBackgroundUpload'});
   }
   function renderAppearance(){
-    page.querySelector('#salarySummary').textContent='¥'+money(draft.monthlySalary,0)+'/月 · '+draft.start+'–'+draft.end;
+    page.querySelector('#salarySummary').textContent=(draft.privateDisplay?'薪资保密':'¥'+money(draft.monthlySalary,0)+'/月')+' · '+draft.start+'–'+draft.end;
     page.querySelector('#salaryFontColors').innerHTML=swatches('textColor',['#ffffff','#fff3c4','#ffeacc','#d7eaf6','#d67fa2','#444444']);
     page.querySelector('#salaryBackgrounds').innerHTML=swatches('backgroundColor',['#252932','#ff6148','#8e2c12','#914561','#d47799','#ffffff']);
-    page.querySelector('#salaryTransparent').checked=draft.transparent;updatePreview();icons();refreshAnnotations();
+    page.querySelector('#salaryPrivacy').checked=draft.privateDisplay;page.querySelector('#salaryTransparent').checked=draft.transparent;updatePreview();icons();refreshAnnotations();
   }
   function open(id=components.salaryDefaultId){
     componentId=id;widgetId=id===components.salaryDefaultId?'board-salary-calculator':'board-salary-'+id;config=readConfig();
-    draft={...config};refreshedAt=refreshTimes.get(id)||readTimestamp(id);dirty=false;uploading=false;closeSheet();
-    page.innerHTML=`<header class="salary-head"><button type="button" data-salary="back" aria-label="返回首页" title="返回"><i data-lucide="chevron-left"></i></button><h2>薪资计算</h2><button type="button" class="salary-guide" data-salary="guide">教程</button></header><div class="salary-stage" data-annotation-id="salary-preview"><p class="salary-refresh-hint">点击组件更新到手薪资</p><div class="salary-live-widget" data-salary="refresh" tabindex="0" role="button"><div class="salary-widget-background"></div><div class="salary-widget-content"><div class="salary-earned"></div></div></div></div><div class="salary-controls" data-annotation-id="salary-appearance"><button type="button" class="salary-settings-row" data-salary="settings"><span>薪资设置<small id="salarySummary"></small></span><i data-lucide="chevron-right"></i></button><button type="button" class="salary-analysis-row" data-salary="analysis"><span>薪资分析</span><span><i data-lucide="chart-no-axes-column"></i><i data-lucide="chevron-right"></i></span></button><section class="salary-appearance-field"><h3>字体颜色</h3><div id="salaryFontColors"></div></section><section class="salary-appearance-field"><h3>背景</h3><div id="salaryBackgrounds"></div></section><label class="salary-transparent-row" for="salaryTransparent"><span>透明背景</span><span class="salary-switch"><input type="checkbox" id="salaryTransparent" role="switch" data-salary-field="transparent" aria-label="透明背景" /><span></span></span></label></div><p class="salary-error" id="salaryError" role="alert" hidden></p><footer class="salary-footer"><button type="button" class="salary-save" data-salary="save">保存到我的组件</button></footer>`;
+    draft={...config};refreshedAt=refreshTimes.get(id)||readTimestamp(id);refreshTimes.set(id,refreshedAt);dirty=false;uploading=false;closeSheet();
+    page.innerHTML=`<header class="salary-head"><button type="button" data-salary="back" aria-label="返回首页" title="返回"><i data-lucide="chevron-left"></i></button><h2>薪资计算</h2><button type="button" class="salary-guide" data-salary="guide">教程</button></header><div class="salary-stage" data-annotation-id="salary-preview"><p class="salary-refresh-hint">每10分钟自动刷新，点击组件也可更新</p><div class="salary-live-widget" data-salary="refresh" tabindex="0" role="button"><div class="salary-widget-background"></div><div class="salary-widget-content"><div class="salary-earned"></div></div></div></div><div class="salary-controls" data-annotation-id="salary-appearance"><button type="button" class="salary-settings-row" data-salary="settings"><span>薪资设置<small id="salarySummary"></small></span><i data-lucide="chevron-right"></i></button><button type="button" class="salary-analysis-row" data-salary="analysis"><span>薪资分析</span><span><i data-lucide="chart-no-axes-column"></i><i data-lucide="chevron-right"></i></span></button><section class="salary-appearance-field"><h3>字体颜色</h3><div id="salaryFontColors"></div></section><section class="salary-appearance-field"><h3>背景</h3><div id="salaryBackgrounds"></div></section><label class="salary-transparent-row" for="salaryTransparent"><span>透明背景</span><span class="salary-switch"><input type="checkbox" id="salaryTransparent" role="switch" data-salary-field="transparent" aria-label="透明背景" /><span></span></span></label></div><p class="salary-error" id="salaryError" role="alert" hidden></p><footer class="salary-footer"><button type="button" class="salary-save" data-salary="save">保存到我的组件</button></footer>`;
     page.querySelector('h2').textContent=components.get(componentId)?.name||'薪资计算';
     page.querySelectorAll('.salary-appearance-field').forEach(el=>el.classList.add('appearance-field'));
     page.querySelector('.salary-transparent-row').outerHTML=WidgetAppearance.toggle({id:'salaryTransparent',checked:draft.transparent,attributes:'data-salary-field="transparent"'});
+    page.querySelector('.salary-analysis-row').insertAdjacentHTML('afterend',`<label class="appearance-toggle salary-privacy-row" for="salaryPrivacy"><span>保密展示</span><span class="appearance-switch"><input id="salaryPrivacy" type="checkbox" role="switch" data-salary-field="privateDisplay" aria-label="保密展示" ${draft.privateDisplay?'checked':''} /><span></span></span></label>`);
     setAppPage('salary');renderAppearance();icons();
   }
   function closeSheet(){
@@ -89,7 +110,7 @@
     overlay.querySelector('input,button').focus({preventScroll:true});icons();refreshAnnotations();
   }
   function showError(message){const error=page.querySelector('#salaryError');error.hidden=false;error.textContent=message;}
-  async function snapshot(value,id=componentId,at=refreshTimes.get(id)||(id===componentId?refreshedAt:readTimestamp(id))){
+  async function snapshot(value,id=componentId,at=refreshTimes.get(id)||(id===componentId?refreshedAt:readTimestamp(id)),includeCountdown=true){
     const result=model.progress(value,new Date(at));
     const canvas=document.createElement('canvas');canvas.width=300;canvas.height=300;const ctx=canvas.getContext('2d');
     ctx.beginPath();ctx.roundRect(0,0,300,300,24);ctx.clip();
@@ -100,7 +121,9 @@
     const animals=new Image();animals.src=artwork(id);await animals.decode();ctx.drawImage(animals,0,0,300,300);
     ctx.fillStyle=value.textColor;ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.font='20px '+font;ctx.fillText('今日到手',150,42);
-    ctx.font='600 50px '+font;ctx.fillText('¥'+money(result.earned),150,101,260);
+    ctx.font='600 50px '+font;ctx.fillText(value.privateDisplay?'¥****':'¥'+money(result.earned),150,101,260);
+    if(includeCountdown){const remaining=model.countdown(value);ctx.fillStyle='#e2e3e4';ctx.beginPath();ctx.roundRect(84,153,132,45,23);ctx.fill();
+      ctx.fillStyle=value.textColor;ctx.font='20px '+font;ctx.fillText(remaining.text,150,176,120);ctx.font='16px '+font;ctx.fillText(remaining.label,150,216);}
     return canvas.toDataURL('image/png');
   }
   async function saveWidget(){
@@ -108,18 +131,18 @@
     saving=true;const button=page.querySelector('.salary-save');button.disabled=true;button.textContent='保存中…';page.querySelector('.salary-controls').inert=true;
     try{
       const next={...draft},image=await snapshot(next,componentId,refreshedAt);localStorage.setItem(configKey(),JSON.stringify({version:2,config:next,refreshedAt}));refreshTimes.set(componentId,refreshedAt);
-      config=next;window.__themeWidgetFlow.save([{id:widgetId,name:components.get(componentId)?.name||'薪资计算',type:'时间日历组件',size:'2*2',image,words:'',renderVersion:2}]);
+      config=next;window.__themeWidgetFlow.save([{id:widgetId,name:components.get(componentId)?.name||'薪资计算',type:'时间日历组件',size:'2*2',image,words:'',renderVersion:3}]);
       const saved=JSON.parse(localStorage.getItem('aiyong-theme-prototype-v1')||'{}');
       if(!saved.saved?.[widgetId]||saved.extraCatalog?.find(item=>item.id===widgetId)?.image!==image)throw new Error('我的组件存储空间不足，请清理后重试');
-      dirty=false;button.textContent='已保存到我的组件';showToast('薪资组件已保存到我的组件');
+      dirty=false;refreshHome();button.textContent='已保存到我的组件';showToast('薪资组件已保存到我的组件');
     }catch(error){button.textContent='保存到我的组件';showError(error.message||'保存失败，请压缩背景图片后重试');}
     finally{saving=false;button.disabled=false;page.querySelector('.salary-controls').inert=false;}
   }
   async function refreshSaved(id=components.salaryDefaultId,at=Date.now(),quiet=false){
     const flow=window.__themeWidgetFlow,item=flow.get(ownWidgetId(id));if(!item||refreshing.has(id))return false;
     refreshing.add(id);
-    try{const value=readConfig(id),image=await snapshot(value,id,at);localStorage.setItem(configKey(id),JSON.stringify({version:2,config:value,refreshedAt:at}));refreshTimes.set(id,at);flow.update(item.id,{image,renderVersion:2});if(id===componentId&&!dirty){refreshedAt=at;updatePreview();}if(!quiet)showToast('薪资已更新');return true;}
-    catch(_){showToast('薪资更新失败，请重试');return false;}finally{refreshing.delete(id);}
+    try{const value=readConfig(id),image=await snapshot(value,id,at);localStorage.setItem(configKey(id),JSON.stringify({version:2,config:value,refreshedAt:at}));refreshTimes.set(id,at);flow.update(item.id,{image,renderVersion:3});if(id===componentId&&!dirty){refreshedAt=at;updatePreview();}refreshHome();if(!quiet)showToast('薪资已更新');return true;}
+    catch(_){if(!quiet)showToast('薪资更新失败，请重试');return false;}finally{refreshing.delete(id);}
   }
   document.addEventListener('click',event=>{
     const card=event.target.closest('[data-current-widget="薪资计算"]');if(!card)return;
@@ -148,6 +171,7 @@
   });
   document.addEventListener('change',async event=>{
     const input=event.target;
+    if(input.dataset.salaryField==='privateDisplay'){draft.privateDisplay=input.checked;markDirty();renderAppearance();}
     if(input.dataset.salaryField==='transparent'){draft.transparent=input.checked;markDirty();updatePreview();}
     if(input.dataset.salaryField==='textColor'){draft.textColor=input.value;markDirty();renderAppearance();}
     if(input.id!=='salaryBackgroundUpload')return;
@@ -188,9 +212,23 @@
     });
   };
   window.__themeWidgetFlow.refreshMine();
-  window.__salaryComponent={open,snapshot,refresh:refreshSaved,defaults:{...defaults}};
+  window.__salaryComponent={open,snapshot,refresh:refreshSaved,decorateDesktop,defaults:{...defaults}};
   document.addEventListener('click',event=>{if(event.target.closest('[data-widget-filter]'))refreshHome();});
   window.addEventListener('desktop-components-changed',()=>{refreshHome();if(active()){if(!dirty)draft={...readConfig()};updatePreview();}});
-  for(const c of components.resources('salary')){const saved=window.__themeWidgetFlow.get(ownWidgetId(c.id));if(saved&&saved.renderVersion!==2)refreshSaved(c.id,readTimestamp(c.id),true);}
-  refreshHome();
+  for(const c of components.resources('salary')){const saved=window.__themeWidgetFlow.get(ownWidgetId(c.id));if(saved&&saved.renderVersion!==3)refreshSaved(c.id,readTimestamp(c.id),true);}
+  async function refreshAutomatic(force=false){
+    const saved=window.__themeWidgetFlow.getSaved().filter(w=>w.id.startsWith('board-salary-'));
+    const ids=new Set(saved.map(w=>w.id==='board-salary-calculator'?components.salaryDefaultId:w.id.slice('board-salary-'.length)));
+    if(active())ids.add(componentId);
+    const now=Date.now();
+    for(const id of ids){
+      if(!force&&now-(refreshTimes.get(id)||readTimestamp(id))<refreshInterval)continue;
+      if(id===componentId&&active()&&!saving&&!uploading){refreshedAt=now;refreshTimes.set(id,now);updatePreview();}
+      if(saved.some(w=>w.id===ownWidgetId(id)))await refreshSaved(id,now,true);
+    }
+  }
+  setInterval(()=>refreshAutomatic(true),refreshInterval);
+  setInterval(updateCountdown,1000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){updateCountdown();refreshAutomatic();}});
+  refreshAutomatic();refreshHome();
 })();
