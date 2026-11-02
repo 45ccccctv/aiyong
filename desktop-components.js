@@ -64,10 +64,11 @@
       if(impl==='monthly'){
         const m=c.monthly||{};
         item.monthly={copy:m.copy||'每天锻炼一小时',background:m.background||'',icons:Array.isArray(m.icons)?m.icons:[{id:'default',name:'小旗',image:m.iconImage||defaultMonthIcon(m)},{id:'heart',name:'爱心',image:defaultMonthIcon({icon:'heart',iconColor:'#dc7fa5'})},{id:'star',name:'星星',image:defaultMonthIcon({icon:'star',iconColor:'#d6a447'})}]};
+        item.monthly.icons=item.monthly.icons.map(i=>({id:i.id,image:i.image}));
       }
       if(impl==='water'){
         const w=c.water||{},before=w.states?.before||{};
-        item.water={...w,states:{before:{copy:before.copy??w.copy??'今天也要好好喝水',image:before.image??w.image??''},after:{copy:w.states?.after?.copy??'今天的喝水目标完成啦',image:w.states?.after?.image??'./assets/water-complete.png'}}};
+        item.water={states:{before:{copy:before.copy??w.copy??'今天也要好好喝水',textColor:before.textColor??w.textColor??'#4a705f',image:before.image??w.image??''},after:{copy:w.states?.after?.copy??'今天的喝水目标完成啦',textColor:w.states?.after?.textColor??w.textColor??'#4a705f',image:w.states?.after?.image??'./assets/water-complete.png'}}};
       }
       return item;
     });
@@ -120,7 +121,7 @@
     else if(type==='salary-decoration'){draft.backgrounds=value?[{id:'salary-decoration',code:'badge_front',name:'装饰层',url:value,vip:false}]:[];}
     else if(type==='salary-after-background')draft.salaryAfter.background=value;
     else if(type==='salary-after-decoration')draft.salaryAfter.decoration=value;
-    else if(type==='water-before'||type==='water-after'){draft.water.states[type.slice(6)].image=value;if(type==='water-before')draft.water.image=value;}
+    else if(type==='water-before'||type==='water-after')draft.water.states[type.slice(6)].image=value;
     else if(type.startsWith('checkin2-'))draft.checkin2[type.slice(9)].image=value;
     else{const [kind,field]=type.split('-');draft[kind][field]=value;}
   }
@@ -147,11 +148,11 @@
       window.lucide?.createIcons();return;
     }
     if(kind==='water'){
-      draft.water??={copy:'今天也要好好喝水',goal:8,done:0,textColor:'#4a705f',background:'#ffffff',image:''};
-      const w=draft.water;w.states??={before:{copy:w.copy||'',image:w.image||''},after:{copy:'今天的喝水目标完成啦',image:''}};
+      draft.water??={states:{before:{copy:'今天也要好好喝水',textColor:'#4a705f',image:''},after:{copy:'今天的喝水目标完成啦',textColor:'#4a705f',image:''}}};
+      const w=draft.water;
       dialog.querySelector('.dc-material-row>label').textContent='喝水打卡配置：';dialog.querySelector('#dcCode').required=true;dialog.querySelector('label[for="dcCode"]').innerHTML='<em>*</em>与客户端约定的组件参数码：';
-      dialog.querySelector('#dcBackgroundImages').innerHTML=`<div class="dc-monthly-fields"><label for="dcWaterGoal"><em>*</em>目标值（杯）</label><input id="dcWaterGoal" data-dc-water="goal" type="number" min="1" max="99" step="1" required value="${w.goal}" /><label for="dcWaterDone"><em>*</em>默认已打卡数量（杯）</label><input id="dcWaterDone" data-dc-water="done" type="number" min="0" max="99" step="1" required value="${w.done}" /></div>`+['before','after'].map(part=>{const item=w.states[part],label=part==='before'?'未完成目标':'已完成目标';return `<fieldset class="dc-checkin-state dc-water-state"><legend>${label}</legend><div class="dc-checkin-copy dc-water-copy"><label><span><em>*</em>文字文案</span><input id="${part==='before'?'dcWaterCopy':'dcWaterCompleteCopy'}" data-dc-water-state="${part}" required maxlength="40" value="${esc(item.copy)}" /></label>${part==='before'?`<label><span>文字颜色</span><input id="dcWaterTextColor" data-dc-water="textColor" type="color" value="${esc(w.textColor)}" /></label>`:''}</div>${materialGroup('water-'+part,item.image,'badge_front',label+'图片',true)}</fieldset>`;}).join('')+materialGroup('water-backgroundImage',w.backgroundImage,'background','背景图');
-      dialog.querySelector('.dc-form-note').textContent='批注：已打卡数量小于目标值显示未完成样式，达到或超过目标值自动切换为完成图片和文案。两种状态共用背景和文字颜色，每天重置后恢复未完成样式。';finishLayers();window.lucide?.createIcons();return;
+      dialog.querySelector('#dcBackgroundImages').innerHTML=['before','after'].map(part=>{const item=w.states[part],label=part==='before'?'打卡前':'打卡后';return `<fieldset class="dc-checkin-state dc-water-state"><legend>${label}</legend><div class="dc-checkin-copy"><label><span><em>*</em>文案</span><input id="${part==='before'?'dcWaterCopy':'dcWaterCompleteCopy'}" data-dc-water-state="${part}" data-field="copy" required maxlength="40" value="${esc(item.copy)}" /></label><label><span>文字颜色</span><input type="color" data-dc-water-state="${part}" data-field="textColor" value="${esc(item.textColor)}" /></label></div>${materialGroup('water-'+part,item.image,'background',label+'背景图',true)}</fieldset>`;}).join('');
+      dialog.querySelector('.dc-form-note').textContent='批注：客户端默认目标值8、已打卡数量0，不在中台配置，用户可在App内修改。未达到目标时显示打卡前样式，达到或超过目标后切换打卡后的文案、文字颜色和背景图；每天重置数量后恢复打卡前样式。';finishLayers();window.lucide?.createIcons();return;
     }
     if(['clock','todo'].includes(kind)){
       const clock=kind==='clock';draft.clock??={background:''};draft.todo??={name:'',items:['','','',''],decoration:'',background:''};
@@ -162,7 +163,7 @@
     if(kind==='monthly'){
       draft.monthly??={copy:'',background:'',icons:[]};const m=draft.monthly;
       dialog.querySelector('.dc-material-row>label').textContent='月历打卡配置：';dialog.querySelector('#dcCode').required=true;dialog.querySelector('label[for="dcCode"]').innerHTML='<em>*</em>与客户端约定的组件参数码：';
-      dialog.querySelector('#dcBackgroundImages').innerHTML=`<div class="dc-monthly-fields"><label for="dcMonthCopy"><em>*</em>文案</label><input id="dcMonthCopy" data-dc-monthly="copy" required maxlength="40" value="${esc(m.copy)}" /></div>${materialGroup('monthly-background',m.background,'background','背景图')}<div class="dc-monthly-icon-list"><h3>打卡图标</h3>${m.icons.map((item,i)=>`<section class="dc-material-group"><header><b>图标 ${i+1}${i===0?' · 默认':''}</b><span></span><button type="button" class="fs-delete" data-dc="remove-month-icon" data-id="${esc(item.id)}">删除</button></header><input data-dc-month-icon-name="${esc(item.id)}" required maxlength="20" value="${esc(item.name)}" aria-label="图标名称" />${uploadTile('monthly-icon-item',item.id,item.image,'替换打卡图标')}</section>`).join('')}${uploadTile('monthly-icons','','','上传多个图标',true)}<p class="dc-upload-note">支持多选图片，每张不超过 5MB，最多 12 个图标。</p></div>`;
+      dialog.querySelector('#dcBackgroundImages').innerHTML=`<div class="dc-monthly-fields"><label for="dcMonthCopy"><em>*</em>文案</label><input id="dcMonthCopy" data-dc-monthly="copy" required maxlength="40" value="${esc(m.copy)}" /></div>${materialGroup('monthly-background',m.background,'background','背景图')}<div class="dc-monthly-icon-list"><h3>打卡图标</h3><div class="dc-image-grid">${m.icons.map((item,i)=>`<div class="dc-background-image dc-monthly-icon-tile">${uploadTile('monthly-icon-item',item.id,item.image,'替换第'+(i+1)+'张打卡图标')}<button type="button" data-dc="remove-month-icon" data-id="${esc(item.id)}" title="删除图片" aria-label="删除第${i+1}张打卡图标"><i data-lucide="trash-2"></i></button></div>`).join('')}${uploadTile('monthly-icons','','','上传图片',true)}</div><p class="dc-upload-note">支持多选图片，每张不超过 5MB，最多 12 个图标。</p></div>`;
       dialog.querySelector('.dc-form-note').textContent='批注：不配置装饰层。日历方框配色由客户端内置，用户可切换配色和中台上传的打卡图标。组件右上角按钮进行今日打卡，桌面点击组件进入详情；本月网格与累计打卡天数独立记录，累计天数不因跨月清零。';
       finishLayers();window.lucide?.createIcons();return;
     }
@@ -204,7 +205,7 @@
     try{
       const images=[];for(const file of files)images.push({url:await readImage(file),name:file.name.replace(/\.[^.]+$/,'')});
       if(session!==uploadSession||!dialog.open)return;
-      if(type==='monthly-icons'){if(draft.monthly.icons.length+images.length>12)throw new Error('最多上传12个图标');draft.monthly.icons.push(...images.map(i=>({id:uid('month-icon'),name:i.name.slice(0,20),image:i.url})));drawBackgrounds();}
+      if(type==='monthly-icons'){if(draft.monthly.icons.length+images.length>12)throw new Error('最多上传12个图标');draft.monthly.icons.push(...images.map(i=>({id:uid('month-icon'),image:i.url})));drawBackgrounds();}
       else if(type==='monthly-icon-item'){const item=draft.monthly.icons.find(i=>i.id===input.dataset.backgroundId);if(item)item.image=images[0].url;drawBackgrounds();}
       else if(type==='pet-rooms'||type==='pet-states'){const item=draft.pet[type.slice(4)].find(i=>i.id===input.dataset.backgroundId);if(item)item.image=images[0].url;drawBackgrounds();}
       else if(layerSpecs.some(s=>s.type===type)){setLayer(type,images[0].url);drawBackgrounds();}
@@ -254,11 +255,11 @@
     if(e.target.dataset.dcUpload)upload(e.target);
   });
   document.addEventListener('input',e=>{if(e.target.dataset.dcMonthly&&draft)draft.monthly[e.target.dataset.dcMonthly]=e.target.value;if(e.target.dataset.dcTodo&&draft)draft.todo[e.target.dataset.dcTodo]=e.target.dataset.dcTodo==='items'?e.target.value.split('\n'):e.target.value;});
-  document.addEventListener('input',e=>{if(!draft)return;if(e.target.dataset.dcTodoItem!==undefined)draft.todo.items[Number(e.target.dataset.dcTodoItem)]=e.target.value;if(e.target.dataset.dcWater){const f=e.target.dataset.dcWater;draft.water[f]=['goal','done'].includes(f)?Number(e.target.value):e.target.value;}});
+  document.addEventListener('input',e=>{if(draft&&e.target.dataset.dcTodoItem!==undefined)draft.todo.items[Number(e.target.dataset.dcTodoItem)]=e.target.value;});
   document.addEventListener('input',e=>{const group=e.target.dataset.dcPetGroup;if(draft&&group){const item=draft.pet[group]?.find(i=>i.id===e.target.dataset.id);if(item)item.name=e.target.value;}});
   document.addEventListener('input',e=>{if(draft&&e.target.dataset.dcCheckin2State)draft.checkin2[e.target.dataset.dcCheckin2State][e.target.dataset.field]=e.target.value;});
   document.addEventListener('input',e=>{if(draft&&e.target.dataset.dcSalaryAfter)draft.salaryAfter[e.target.dataset.dcSalaryAfter]=e.target.value;});
-  document.addEventListener('input',e=>{if(!draft)return;if(e.target.dataset.dcMonthIconName){const item=draft.monthly.icons.find(i=>i.id===e.target.dataset.dcMonthIconName);if(item)item.name=e.target.value;}if(e.target.dataset.dcWaterState){const part=e.target.dataset.dcWaterState;draft.water.states[part].copy=e.target.value;if(part==='before')draft.water.copy=e.target.value;}});
+  document.addEventListener('input',e=>{if(draft&&e.target.dataset.dcWaterState)draft.water.states[e.target.dataset.dcWaterState][e.target.dataset.field]=e.target.value;});
   document.addEventListener('change',e=>{if(e.target.id!=='dcCode'||!draft)return;draft.code=e.target.value.trim();const kind=parameterKinds[draft.code];if(kind){draft.kind=kind;draft.functionType=typeFor(kind);dialog.querySelector('#dcType').value=draft.functionType;drawBackgrounds();}});
   document.addEventListener('submit',e=>{
     if(e.target.matches('#desktopComponentSearch')){e.preventDefault();query=Object.fromEntries(new FormData(e.target));render();}
@@ -272,10 +273,10 @@
     else if(pet){const p=draft.pet;if(!p?.rooms?.length||p.states?.length<2){showError('请至少配置一个房间和两种娃娃状态');return;}for(const group of ['rooms','states']){if(p[group].length>12||p[group].some(i=>!i.name.trim()||!i.image)){showError('请填写每项名称并上传图片，每组最多12项');return;}if(new Set(p[group].map(i=>i.name.trim())).size!==p[group].length){showError('同组名称不能重复');return;}p[group].forEach(i=>i.name=i.name.trim());}}
     else if(clock){if(!draft.clock?.background){showError('请上传时钟背景图');return;}}
     else if(todo){const items=draft.todo.items.map(s=>s.trim());if(!draft.todo.name.trim()||items.length!==4||items.some(s=>!s||s.length>32)){showError('请填写计划名和4条计划，每条最多32字');return;}draft.todo.items=items;draft.todo.name=draft.todo.name.trim();}
-    else if(water){const w=draft.water;if(['before','after'].some(part=>!w.states?.[part]?.copy.trim()||!w.states?.[part]?.image)||!Number.isInteger(w.goal)||w.goal<1||w.goal>99||!Number.isInteger(w.done)||w.done<0||w.done>99){showError('请填写文案、1至99的目标值、0至99的已打卡数量并上传图片');return;}w.states.before.copy=w.states.before.copy.trim();w.states.after.copy=w.states.after.copy.trim();w.copy=w.states.before.copy;w.image=w.states.before.image;}
+    else if(water){const w=draft.water;if(['before','after'].some(part=>!w.states?.[part]?.copy.trim()||!w.states?.[part]?.image||!/^#[0-9a-f]{6}$/i.test(w.states?.[part]?.textColor))){showError('请填写打卡前后文案、有效文字颜色并上传背景图');return;}w.states.before.copy=w.states.before.copy.trim();w.states.after.copy=w.states.after.copy.trim();}
     else if(monthly){
       if(!draft.monthly?.copy.trim()){showError('请填写月历打卡文案');return;}
-      if(!draft.monthly.icons?.length||draft.monthly.icons.length>12||draft.monthly.icons.some(i=>!i.image||!i.name.trim())){showError('请配置1至12个有效打卡图标');return;}
+      if(!draft.monthly.icons?.length||draft.monthly.icons.length>12||draft.monthly.icons.some(i=>!i.image)){showError('请上传1至12个有效打卡图标图片');return;}
     }else if(!draft.backgrounds.length||draft.backgrounds.some(b=>!b.url)){showError(salary?'请上传薪资装饰层图片':'请至少上传一张背景图');return;}
     if(components.some(c=>c.id!==draft.id&&c.name===name)){showError('组件名称已存在，请编辑已有组件');return;}
     const code=String(d.get('code')).trim();
@@ -285,7 +286,7 @@
     if(salary&&(!draft.salaryAfter?.decoration||!draft.salaryAfter.copy.trim()||!/^#[0-9a-f]{6}$/i.test(draft.salaryAfter.textColor))){showError('请填写下班提示文案、有效文字颜色并上传下班后装饰层');return;}
     if(salary)draft.salaryAfter.copy=draft.salaryAfter.copy.trim();
     const kind=checkin2?'checkin2':pet?'pet':water?'water':clock?'clock':todo?'todo':monthly?'monthly':salary?'salary':categories.find(c=>code==='energy_'+c.id||code.startsWith('energy_'+c.id+'_'))?.id||(!['salary','monthly','clock','todo','water','pet','checkin2'].includes(draft.kind)&&draft.kind)||categories.find(c=>c.name===name)?.id||draft.id;
-    const item={...draft,name,tags:String(d.get('tags')).trim(),code,functionType,kind,enabled:d.get('enabled')==='true',audience:d.get('audience'),size:checkin2?'2*2':pet?'4*4':todo?'2*4':clock||water?'2*2':draft.size,sizes:checkin2?['2*2']:pet?['4*4']:todo||water?['2*2','2*4']:[draft.size||'2*2'],cover:draft.cover||(checkin2?draft.checkin2.before.image:pet?draft.pet.rooms[0].image:water?draft.water.image:clock?draft.clock.background:todo?'./assets/todo-widget.png':monthly?'./assets/monthly-checkin.png':draft.backgrounds[0].url),updated:stamp(),updatedBy:'运营',backgrounds:checkin2||pet||monthly||clock||todo||water?[]:draft.backgrounds.map(b=>({...b,code:b.code||b.id,name:b.name||b.id}))};
+    const item={...draft,name,tags:String(d.get('tags')).trim(),code,functionType,kind,enabled:d.get('enabled')==='true',audience:d.get('audience'),size:checkin2?'2*2':pet?'4*4':todo?'2*4':clock||water?'2*2':draft.size,sizes:checkin2?['2*2']:pet?['4*4']:todo||water?['2*2','2*4']:[draft.size||'2*2'],cover:draft.cover||(checkin2?draft.checkin2.before.image:pet?draft.pet.rooms[0].image:water?draft.water.states.before.image:clock?draft.clock.background:todo?'./assets/todo-widget.png':monthly?'./assets/monthly-checkin.png':draft.backgrounds[0].url),updated:stamp(),updatedBy:'运营',backgrounds:checkin2||pet||monthly||clock||todo||water?[]:draft.backgrounds.map(b=>({...b,code:b.code||b.id,name:b.name||b.id}))};
     if(monthly)item.monthly.copy=item.monthly.copy.trim();
     const next=components.some(c=>c.id===item.id)?components.map(c=>c.id===item.id?item:c):[...components,item];
     if(!persist(next)){showError('浏览器存储空间不足，请减少图片数量或压缩图片后重试，当前表单已保留');return;}

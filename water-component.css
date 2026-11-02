@@ -5,12 +5,13 @@
 .water-widget{position:relative;width:165px;height:165px;overflow:hidden;border-radius:16px;background-color:var(--water-bg,#fff);background-size:cover;background-position:center;color:var(--water-text,#4a705f)}
 .water-widget.is-transparent{background-color:transparent;outline:1px dashed #e1d9e8;outline-offset:-1px}
 .water-widget.water-wide{width:282px;max-width:100%;height:auto;aspect-ratio:2/1}
-.water-widget.water-wide>img{width:50%}
+.water-widget.water-wide.is-illustration>img{width:50%}
 .water-widget.water-wide>strong{left:54%;right:10px;top:12px;max-height:44px}
 .water-widget.water-wide .water-widget-count{left:68%;right:auto;top:48%;width:60px}
 .water-widget.water-wide .water-widget-progress{left:73%;right:auto;width:23%}
 .water-widget.water-wide .water-widget-add{left:72%;right:auto;bottom:7px}
-.water-widget>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.water-widget>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.water-widget.is-illustration>img{object-fit:contain}
 .water-widget>strong{position:absolute;left:12px;right:12px;top:12px;font-size:10px;line-height:1.5;font-weight:500;overflow-wrap:anywhere;max-height:30px;overflow:hidden}
 .water-widget-count{position:absolute;top:53%;right:11px;width:44px;display:flex;align-items:baseline;justify-content:center;gap:2px;white-space:nowrap;color:inherit}
 .water-widget-count b{font-size:21px;line-height:1.1}
